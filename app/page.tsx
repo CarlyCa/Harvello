@@ -87,26 +87,24 @@ export default function HomePage() {
         <div className="mx-auto grid max-w-7xl gap-8 rounded-[28px] border border-[#dce4dd] bg-white p-8 shadow-soft lg:grid-cols-[.9fr_1.1fr] lg:items-center">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0b8f4d]">Contact us</p>
-            <h2 className="mt-3 text-3xl font-black tracking-normal text-[#073f32]">Want Harvello on your park district website?</h2>
+            <h2 className="mt-3 text-3xl font-black tracking-normal text-[#073f32]">Contact Harvello</h2>
             <p className="mt-4 max-w-2xl text-base leading-7 text-[#4c625b]">
-              Send us your website and preferred brand color. We will prepare the assistant, send your team the one-line install snippet, and help you go live.
+              Have a question or want to talk through setup? Send us your contact information and we will follow up.
             </p>
           </div>
           <form className="rounded-2xl bg-[#fbfbf6] p-6">
             <div className="grid gap-4 sm:grid-cols-2">
               <ContactField label="Name" name="name" placeholder="Jane Smith" />
               <ContactField label="Email" name="email" placeholder="jane@parkdistrict.org" type="email" />
+              <ContactField label="Phone" name="phone" placeholder="(847) 555-0100" type="tel" />
               <ContactField label="Organization" name="organization" placeholder="Riverdale Park District" />
-              <ContactField label="Website" name="website" placeholder="https://yourparkdistrict.org" type="url" />
-              <ContactField label="Brand color" name="brandColor" placeholder="#0b8f4d" />
-              <ContactField label="Launch timing" name="timing" placeholder="This month" />
             </div>
             <label className="mt-4 block">
               <span className="text-sm font-bold text-[#073f32]">Message</span>
               <textarea
                 name="message"
                 rows={4}
-                placeholder="Tell us what residents ask about most."
+                placeholder="How can we help?"
                 className="focus-ring mt-2 w-full rounded-md border border-[#dce4dd] bg-white px-3 py-3 text-sm leading-6 text-[#073f32] placeholder:text-[#7b8b86]"
               />
             </label>
