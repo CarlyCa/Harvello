@@ -92,24 +92,34 @@ export default function HomePage() {
               Send us your website and preferred brand color. We will prepare the assistant, send your team the one-line install snippet, and help you go live.
             </p>
           </div>
-          <div className="rounded-2xl bg-[#fbfbf6] p-6">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <a
-                href="mailto:hello@harvello.com?subject=Harvello%20for%20our%20park%20district&body=Hi%20Harvello%2C%0A%0AI%27d%20like%20to%20learn%20more%20about%20adding%20Harvello%20to%20our%20website.%0A%0AWebsite%3A%20%0APreferred%20brand%20color%3A%20%0A"
-                className="focus-ring rounded-md bg-[#0b8f4d] px-5 py-3 text-center text-sm font-bold text-white hover:bg-[#076f3d]"
-              >
-                Email Harvello
-              </a>
-              <a href="/demo" className="focus-ring rounded-md border border-[#cfded2] bg-white px-5 py-3 text-center text-sm font-bold text-[#073f32] hover:border-[#0b8f4d]">
-                Generate a demo
-              </a>
+          <form className="rounded-2xl bg-[#fbfbf6] p-6">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <ContactField label="Name" name="name" placeholder="Jane Smith" />
+              <ContactField label="Email" name="email" placeholder="jane@parkdistrict.org" type="email" />
+              <ContactField label="Organization" name="organization" placeholder="Riverdale Park District" />
+              <ContactField label="Website" name="website" placeholder="https://yourparkdistrict.org" type="url" />
+              <ContactField label="Brand color" name="brandColor" placeholder="#0b8f4d" />
+              <ContactField label="Launch timing" name="timing" placeholder="This month" />
             </div>
-            <div className="mt-5 grid gap-3 text-sm font-semibold text-[#4c625b] sm:grid-cols-3">
-              <div className="rounded-lg border border-[#dce4dd] bg-white p-3">$99/month</div>
-              <div className="rounded-lg border border-[#dce4dd] bg-white p-3">One script tag</div>
-              <div className="rounded-lg border border-[#dce4dd] bg-white p-3">Setup help included</div>
-            </div>
-          </div>
+            <label className="mt-4 block">
+              <span className="text-sm font-bold text-[#073f32]">Message</span>
+              <textarea
+                name="message"
+                rows={4}
+                placeholder="Tell us what residents ask about most."
+                className="focus-ring mt-2 w-full rounded-md border border-[#dce4dd] bg-white px-3 py-3 text-sm leading-6 text-[#073f32] placeholder:text-[#7b8b86]"
+              />
+            </label>
+            <button
+              type="button"
+              className="focus-ring mt-5 w-full rounded-md bg-[#0b8f4d] px-5 py-3 text-sm font-bold text-white hover:bg-[#076f3d]"
+            >
+              Submit request
+            </button>
+            <p className="mt-3 text-center text-xs font-semibold text-[#4c625b]">
+              Form wiring coming next. For now, use this as the contact layout.
+            </p>
+          </form>
         </div>
       </section>
 
@@ -226,6 +236,30 @@ function HeroProductVisual() {
         </div>
       </div>
     </div>
+  );
+}
+
+function ContactField({
+  label,
+  name,
+  placeholder,
+  type = "text"
+}: {
+  label: string;
+  name: string;
+  placeholder: string;
+  type?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="text-sm font-bold text-[#073f32]">{label}</span>
+      <input
+        name={name}
+        type={type}
+        placeholder={placeholder}
+        className="focus-ring mt-2 min-h-11 w-full rounded-md border border-[#dce4dd] bg-white px-3 text-sm text-[#073f32] placeholder:text-[#7b8b86]"
+      />
+    </label>
   );
 }
 
