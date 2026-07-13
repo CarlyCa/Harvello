@@ -24,7 +24,7 @@ export function DashboardClient({ demoId }: { demoId?: string }) {
   useEffect(() => {
     if (!demoId) return;
     fetch(`/api/demo/${demoId}`)
-      .then((response) => response.json())
+      .then(readJson)
       .then((data) => {
         const nextDemo = data.demo ?? null;
         setDemo(nextDemo);
@@ -32,7 +32,8 @@ export function DashboardClient({ demoId }: { demoId?: string }) {
           setWidgetConfig(nextDemo.widgetConfig ?? defaultWidgetConfig(nextDemo));
           setHardcodedAnswers(nextDemo.hardcodedAnswers ?? []);
         }
-      });
+      })
+      .catch(() => setStatus("Could not load this demo. Refresh and try again."));
   }, [demoId]);
 
   const links = useMemo(() => {
@@ -52,7 +53,7 @@ export function DashboardClient({ demoId }: { demoId?: string }) {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ widgetConfig, hardcodedAnswers })
     });
-    const data = await response.json();
+    const data = await readJson(response);
     if (!response.ok) {
       setStatus(data.error ?? "Unable to save.");
       return;
@@ -215,6 +216,13 @@ export function DashboardClient({ demoId }: { demoId?: string }) {
       </section>
     </div>
   );
+}
+
+async function readJson(response: Response) {
+  const contentType = response.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) return response.json();
+  const text = await response.text();
+  throw new Error(text.startsWith("<!DOCTYPE") ? "The server returned an HTML error page. Refresh and try again." : text);
 }
 
 function Field({

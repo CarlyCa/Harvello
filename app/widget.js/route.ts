@@ -25,12 +25,16 @@ export async function GET() {
     if(!text) return;
     state.messages.push({role:"user",text:text});
     render(cfg);
-    fetch(apiBase+"/api/chat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({demoId:orgId,question:text,mode:"widget"})}).then(function(r){return r.json()}).then(function(data){
+    fetch(apiBase+"/api/chat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({demoId:orgId,question:text,mode:"widget"})}).then(readJson).then(function(data){
       state.messages.push({role:"assistant",text:data.answer || data.error || "I could not answer that."});
+      render(cfg);
+    }).catch(function(){
+      state.messages.push({role:"assistant",text:"I could not reach the assistant right now. Please try again."});
       render(cfg);
     });
   }
-  fetch(apiBase+"/api/widget/"+encodeURIComponent(orgId)).then(function(r){return r.json()}).then(render).catch(function(){ render({}); });
+  function readJson(response){ var type = response.headers && response.headers.get("content-type") || ""; if(type.indexOf("application/json") >= 0) return response.json(); return Promise.reject(new Error("Expected JSON")); }
+  fetch(apiBase+"/api/widget/"+encodeURIComponent(orgId)).then(readJson).then(render).catch(function(){ render({}); });
 })();`;
 
   return new Response(script, {

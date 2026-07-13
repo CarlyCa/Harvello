@@ -28,8 +28,9 @@ export function DemoAssistant({ demoId, mode = "demo" }: { demoId: string; mode?
 
   useEffect(() => {
     fetch(`/api/demo/${demoId}`)
-      .then((response) => response.json())
+      .then(readJson)
       .then((data) => setDemo(data.demo ?? null))
+      .catch(() => setDemo(null))
       .finally(() => setLoading(false));
   }, [demoId]);
 
@@ -44,7 +45,7 @@ export function DemoAssistant({ demoId, mode = "demo" }: { demoId: string; mode?
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ demoId, question: trimmed, sessionId, mode })
     });
-    const data = await response.json();
+    const data = await readJson(response);
     setMessages((current) => [
       ...current,
       {
@@ -210,6 +211,13 @@ export function DemoAssistant({ demoId, mode = "demo" }: { demoId: string; mode?
       </section>
     </div>
   );
+}
+
+async function readJson(response: Response) {
+  const contentType = response.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) return response.json();
+  const text = await response.text();
+  throw new Error(text.startsWith("<!DOCTYPE") ? "The server returned an HTML error page. Refresh and try again." : text);
 }
 
 function Metric({ label, value }: { label: string; value: number }) {

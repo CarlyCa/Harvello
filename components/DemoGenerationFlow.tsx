@@ -56,7 +56,7 @@ export function DemoGenerationFlow() {
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ url: targetUrl })
         });
-        const data = await response.json();
+        const data = await readJson(response);
         if (!response.ok) throw new Error(data.error ?? "Unable to create demo.");
         if (cancelled) return;
 
@@ -156,4 +156,11 @@ export function DemoGenerationFlow() {
       </div>
     </section>
   );
+}
+
+async function readJson(response: Response) {
+  const contentType = response.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) return response.json();
+  const text = await response.text();
+  throw new Error(text.startsWith("<!DOCTYPE") ? "The server returned an HTML error page. Refresh and try again." : text);
 }
