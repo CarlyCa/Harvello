@@ -42,9 +42,6 @@ export default function HomePage() {
               <a href="/demo" className="rounded-md bg-[#0b8f4d] px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#076f3d]">
                 Request a demo -&gt;
               </a>
-              <a href="/demo/demo_1q6y5j3r1o6f4w3q" className="text-sm font-bold text-[#073f32] hover:text-[#0b8f4d]">
-                See how it works
-              </a>
             </div>
 
             <div className="mt-10 space-y-2 text-sm font-medium text-[#31584f]">
