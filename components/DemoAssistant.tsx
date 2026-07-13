@@ -294,8 +294,9 @@ function WidgetDemoExperience({
           </div>
           <div className="mt-5 space-y-3 text-sm leading-6 text-[#4c625b]">
             <p>Answers are grounded in the indexed public pages and show source links when available.</p>
-            <p>Tech lift: paste one script tag. Harvello handles setup, configuration, and source updates.</p>
-            <p>$99/month after claiming.</p>
+            <p>The assistant is built from the pages indexed during demo generation, including the topics shown above.</p>
+            <p>You can tune the greeting, brand color, approved answers, and source list before it goes on the live website.</p>
+            <p>When ready, your web team pastes one script tag. Harvello handles setup, configuration, and source updates.</p>
           </div>
         </div>
 
