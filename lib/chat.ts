@@ -121,18 +121,19 @@ function fallbackAnswer(
   confidence: number
 ) {
   const questionTerms = question.toLowerCase().split(/\W+/).filter((term) => term.length > 3);
-  const sentences = matches
-    .flatMap(({ chunk }) => chunk.content.split(/(?<=[.!?])\s+/).map((sentence) => sentence.trim()))
-    .filter((sentence) => sentence.length > 40)
-    .map((sentence) => ({
-      sentence,
-      hits: questionTerms.filter((term) => sentence.toLowerCase().includes(term)).length
+  const snippets = matches
+    .map(({ chunk }) => cleanFallbackText(chunk.content))
+    .filter((content) => content.length > 40)
+    .map((content) => ({
+      snippet: extractRelevantSnippet(content, questionTerms),
+      hits: questionTerms.filter((term) => content.toLowerCase().includes(term)).length
     }))
+    .filter((item) => item.snippet.length > 40)
     .sort((a, b) => b.hits - a.hits)
-    .slice(0, 3)
-    .map((item) => item.sentence);
+    .slice(0, 2)
+    .map((item) => item.snippet);
 
-  if (!sentences.length) {
+  if (!snippets.length) {
     return {
       answer:
         "I could not find a reliable answer in the public website sources indexed for this demo. Please check the cited pages directly.",
@@ -142,10 +143,49 @@ function fallbackAnswer(
   }
 
   return {
-    answer: `Based on the public website content indexed for this demo: ${sentences.join(" ")}`,
+    answer: snippets.join("\n\n"),
     citations,
     confidence
   };
+}
+
+function cleanFallbackText(value: string) {
+  return value
+    .replace(/<\s*back to all events/gi, " ")
+    .replace(/\b(back to all events|ways to play|event details|upcoming events|more details)\b/gi, " ")
+    .replace(/\b(download pdf|save this page as a pdf|add to my calendar|google calendar|icalendar|outlook 365|outlook live)\b/gi, " ")
+    .replace(/\b(menu|search|skip to content|privacy policy|terms of use)\b/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extractRelevantSnippet(content: string, questionTerms: string[]) {
+  const lower = content.toLowerCase();
+  const firstHit = questionTerms
+    .map((term) => lower.indexOf(term))
+    .filter((index) => index >= 0)
+    .sort((a, b) => a - b)[0];
+  const start = firstHit ? Math.max(0, firstHit - 120) : 0;
+  const excerpt = content.slice(start, start + 520).trim();
+  const sentenceLike = excerpt
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => sentence.trim())
+    .filter((sentence) => sentence.length > 25 && !isBoilerplateSentence(sentence))
+    .slice(0, 3)
+    .join(" ");
+  return trimToSentence(sentenceLike || excerpt, 420);
+}
+
+function isBoilerplateSentence(sentence: string) {
+  return /download pdf|add to my calendar|google calendar|outlook|save this page|upcoming events/i.test(sentence);
+}
+
+function trimToSentence(value: string, maxLength: number) {
+  if (value.length <= maxLength) return value;
+  const trimmed = value.slice(0, maxLength);
+  const lastBoundary = Math.max(trimmed.lastIndexOf("."), trimmed.lastIndexOf("!"), trimmed.lastIndexOf("?"));
+  if (lastBoundary > 160) return trimmed.slice(0, lastBoundary + 1);
+  return `${trimmed.replace(/\s+\S*$/, "")}...`;
 }
 
 function uniqueCitations(citations: ChatResult["citations"]) {
