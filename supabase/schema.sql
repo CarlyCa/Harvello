@@ -1,6 +1,22 @@
 create extension if not exists vector;
 create extension if not exists pgcrypto;
 
+-- MVP storage for generated Harvello assistants. The app stores the current
+-- DemoRecord JSON here so customer bot config, sources, chunks, widget
+-- settings, and hardcoded answers survive deploys/restarts.
+create table if not exists public.harvello_demos (
+  id text primary key,
+  domain text not null,
+  organization_slug text not null unique,
+  status text not null,
+  record jsonb not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists harvello_demos_domain_idx on public.harvello_demos (domain);
+create index if not exists harvello_demos_updated_idx on public.harvello_demos (updated_at desc);
+
 create table public.organizations (
   id uuid primary key default gen_random_uuid(),
   name text not null,

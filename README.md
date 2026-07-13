@@ -11,7 +11,7 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-The app works in a local fallback mode without Supabase or OpenAI. With credentials, server routes are ready for Supabase persistence and OpenAI answer generation.
+The app works in a local fallback mode without Supabase or OpenAI. Without Supabase, generated bots are saved to `.data/demos.json`. With Supabase configured, generated bots, widget settings, sources, chunks, and hardcoded answers are persisted in Supabase.
 
 ## Environment
 
@@ -26,3 +26,5 @@ Copy `.env.example` to `.env.local` and fill in:
 ## Database
 
 Apply `supabase/schema.sql` to a Supabase project with pgvector enabled.
+
+For the current MVP, the app writes complete bot records to `public.harvello_demos` as JSONB. The older normalized tables are kept for future expansion, but `harvello_demos` is the production persistence path used by the app today.

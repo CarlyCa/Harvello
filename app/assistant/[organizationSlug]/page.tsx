@@ -2,8 +2,8 @@ import { getDemoByOrganizationSlug } from "@/lib/demo-store";
 import { DemoAssistant } from "@/components/DemoAssistant";
 import { HarvelloLogo } from "@/components/HarvelloLogo";
 
-export default function HostedAssistantPage({ params }: { params: { organizationSlug: string } }) {
-  const demo = getDemoByOrganizationSlug(params.organizationSlug);
+export default async function HostedAssistantPage({ params }: { params: { organizationSlug: string } }) {
+  const demo = await getDemoByOrganizationSlug(params.organizationSlug);
   return (
     <main className="min-h-screen bg-civic-paper px-6 py-8">
       <div className="mx-auto max-w-6xl">

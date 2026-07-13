@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Enter a question under 1,000 characters." }, { status: 400 });
     }
 
-    const demo = body.demoId ? getDemo(body.demoId) : body.organizationSlug ? getDemoByOrganizationSlug(body.organizationSlug) : null;
+    const demo = body.demoId ? await getDemo(body.demoId) : body.organizationSlug ? await getDemoByOrganizationSlug(body.organizationSlug) : null;
     if (!demo) return NextResponse.json({ error: "Assistant not found." }, { status: 404 });
 
     const sessionKey = `${body.sessionId ?? request.ip ?? "local"}:${demo.id}`;

@@ -6,8 +6,8 @@ export async function POST(request: Request) {
   if (!body.demoId || !body.email?.includes("@")) {
     return NextResponse.json({ error: "Enter a valid email to claim this assistant." }, { status: 400 });
   }
-  const demo = getDemo(body.demoId);
+  const demo = await getDemo(body.demoId);
   if (!demo) return NextResponse.json({ error: "Demo not found." }, { status: 404 });
-  const claimed = updateDemo(demo.id, { status: "claimed", claimedEmail: body.email });
+  const claimed = await updateDemo(demo.id, { status: "claimed", claimedEmail: body.email });
   return NextResponse.json({ demo: claimed, dashboardUrl: `/dashboard?demoId=${demo.id}` });
 }

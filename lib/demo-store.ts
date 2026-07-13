@@ -1,6 +1,16 @@
 import type { DemoRecord } from "./types";
+import { getServiceSupabase } from "./supabase";
 import fs from "node:fs";
 import path from "node:path";
+
+type DemoRow = {
+  id: string;
+  domain: string;
+  organization_slug: string;
+  status: string;
+  record: DemoRecord;
+  updated_at: string;
+};
 
 const demos = new Map<string, DemoRecord>();
 const domainRecent = new Map<string, string>();
@@ -15,17 +25,14 @@ function ensureLoaded() {
   try {
     if (!fs.existsSync(demosPath)) return;
     const records = JSON.parse(fs.readFileSync(demosPath, "utf8")) as DemoRecord[];
-    for (const demo of records) {
-      demos.set(demo.id, demo);
-      domainRecent.set(demo.domain, demo.id);
-    }
+    for (const demo of records) cacheDemo(demo);
   } catch {
     demos.clear();
     domainRecent.clear();
   }
 }
 
-function persist() {
+function persistLocal() {
   try {
     fs.mkdirSync(dataDir, { recursive: true });
     fs.writeFileSync(demosPath, JSON.stringify(Array.from(demos.values()), null, 2));
@@ -34,20 +41,81 @@ function persist() {
   }
 }
 
-export function saveDemo(demo: DemoRecord) {
-  ensureLoaded();
+function cacheDemo(demo: DemoRecord) {
   demos.set(demo.id, demo);
   domainRecent.set(demo.domain, demo.id);
-  persist();
+}
+
+async function upsertSupabaseDemo(demo: DemoRecord) {
+  const supabase = getServiceSupabase();
+  if (!supabase) return false;
+  const { error } = await supabase.from("harvello_demos").upsert({
+    id: demo.id,
+    domain: demo.domain,
+    organization_slug: demo.organizationSlug,
+    status: demo.status,
+    record: demo,
+    updated_at: new Date().toISOString()
+  });
+  if (error) throw error;
+  return true;
+}
+
+function saveLocal(demo: DemoRecord) {
+  ensureLoaded();
+  cacheDemo(demo);
+  persistLocal();
   return demo;
 }
 
-export function getDemo(id: string) {
+export async function saveDemo(demo: DemoRecord) {
+  cacheDemo(demo);
+  try {
+    if (await upsertSupabaseDemo(demo)) return demo;
+  } catch (error) {
+    console.error("Supabase save failed; using local demo storage.", error);
+  }
+  return saveLocal(demo);
+}
+
+export async function getDemo(id: string) {
+  const cached = demos.get(id);
+  if (cached) return cached;
+
+  const supabase = getServiceSupabase();
+  if (supabase) {
+    const { data, error } = await supabase.from("harvello_demos").select("record").eq("id", id).maybeSingle();
+    if (!error && data?.record) {
+      const demo = data.record as DemoRecord;
+      cacheDemo(demo);
+      return demo;
+    }
+    if (error) console.error("Supabase read failed; using local demo storage.", error);
+  }
+
   ensureLoaded();
   return demos.get(id);
 }
 
-export function findRecentDemoByDomain(domain: string) {
+export async function findRecentDemoByDomain(domain: string) {
+  const supabase = getServiceSupabase();
+  if (supabase) {
+    const { data, error } = await supabase
+      .from("harvello_demos")
+      .select("record, updated_at")
+      .eq("domain", domain)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle<Pick<DemoRow, "record" | "updated_at">>();
+    if (!error && data?.record) {
+      const demo = data.record;
+      cacheDemo(demo);
+      const age = Date.now() - Date.parse(demo.createdAt);
+      return age < 30 * 60 * 1000 ? demo : null;
+    }
+    if (error) console.error("Supabase recent lookup failed; using local demo storage.", error);
+  }
+
   ensureLoaded();
   const id = domainRecent.get(domain);
   if (!id) return null;
@@ -57,13 +125,11 @@ export function findRecentDemoByDomain(domain: string) {
   return age < 30 * 60 * 1000 ? demo : null;
 }
 
-export function updateDemo(id: string, patch: Partial<DemoRecord>) {
-  ensureLoaded();
-  const current = demos.get(id);
+export async function updateDemo(id: string, patch: Partial<DemoRecord>) {
+  const current = await getDemo(id);
   if (!current) return null;
   const next = { ...current, ...patch };
-  demos.set(id, next);
-  persist();
+  await saveDemo(next);
   return next;
 }
 
@@ -73,7 +139,22 @@ export function incrementChatCount(sessionKey: string) {
   return next;
 }
 
-export function getDemoByOrganizationSlug(slug: string) {
+export async function getDemoByOrganizationSlug(slug: string) {
+  const supabase = getServiceSupabase();
+  if (supabase) {
+    const { data, error } = await supabase
+      .from("harvello_demos")
+      .select("record")
+      .eq("organization_slug", slug)
+      .maybeSingle();
+    if (!error && data?.record) {
+      const demo = data.record as DemoRecord;
+      cacheDemo(demo);
+      return demo;
+    }
+    if (error) console.error("Supabase slug lookup failed; using local demo storage.", error);
+  }
+
   ensureLoaded();
   return Array.from(demos.values()).find((demo) => demo.organizationSlug === slug) ?? null;
 }

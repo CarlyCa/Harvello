@@ -4,13 +4,13 @@ import { toPublicDemo } from "@/lib/public-demo";
 import type { DemoRecord } from "@/lib/types";
 
 export async function GET(_: Request, { params }: { params: { demoId: string } }) {
-  const demo = getDemo(params.demoId);
+  const demo = await getDemo(params.demoId);
   if (!demo) return NextResponse.json({ error: "Demo not found." }, { status: 404 });
   return NextResponse.json({ demo: toPublicDemo(demo) });
 }
 
 export async function PATCH(request: Request, { params }: { params: { demoId: string } }) {
-  const demo = getDemo(params.demoId);
+  const demo = await getDemo(params.demoId);
   if (!demo) return NextResponse.json({ error: "Demo not found." }, { status: 404 });
 
   const body = (await request.json()) as Partial<Pick<DemoRecord, "widgetConfig" | "hardcodedAnswers">>;
@@ -44,6 +44,6 @@ export async function PATCH(request: Request, { params }: { params: { demoId: st
       .slice(0, 50);
   }
 
-  const updated = updateDemo(params.demoId, patch);
+  const updated = await updateDemo(params.demoId, patch);
   return NextResponse.json({ demo: updated ? toPublicDemo(updated) : null });
 }

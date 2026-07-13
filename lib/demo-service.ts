@@ -31,7 +31,7 @@ export async function createDemoFromUrl(input: string) {
   const url = normalizeWebsiteUrl(input);
   await assertPublicWebsite(url);
   const domain = url.hostname.replace(/^www\./, "");
-  const recent = findRecentDemoByDomain(domain);
+  const recent = await findRecentDemoByDomain(domain);
   if (recent && recent.status === "ready") return recent;
 
   const demoId = createId("demo");
@@ -56,15 +56,17 @@ export async function createDemoFromUrl(input: string) {
     sources: [],
     chunks: []
   };
-  saveDemo(initial);
+  await saveDemo(initial);
 
   try {
-    const sources = await crawlWebsite(url, (message, progress) => updateDemo(demoId, { message, progress }));
+    const sources = await crawlWebsite(url, (message, progress) => {
+      void updateDemo(demoId, { message, progress });
+    });
     const usableSources = sources.length ? sources : fallbackSources.map((source) => ({ ...source, url: url.toString() }));
-    updateDemo(demoId, { status: "processing", message: "Building your digital front desk", progress: 76 });
+    await updateDemo(demoId, { status: "processing", message: "Building your digital front desk", progress: 76 });
     const { chunks, categories, suggestedQuestions } = await ingestSources(usableSources);
     const orgName = inferOrganizationName(url.hostname, usableSources[0]?.title);
-    return updateDemo(demoId, {
+    return (await updateDemo(demoId, {
       organizationName: orgName,
       status: "ready",
       progress: 100,
@@ -77,13 +79,13 @@ export async function createDemoFromUrl(input: string) {
         : ["What programs are currently listed for residents?", "How do I register?", "Can I rent a facility?"],
       sources: usableSources,
       chunks
-    })!;
+    }))!;
   } catch (error) {
-    return updateDemo(demoId, {
+    return (await updateDemo(demoId, {
       status: "failed",
       progress: 100,
       message: "The demo could not be generated",
       error: error instanceof Error ? error.message : "Unknown crawl error"
-    })!;
+    }))!;
   }
 }

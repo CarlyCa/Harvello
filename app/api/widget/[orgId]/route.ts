@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getDemo, getDemoByOrganizationSlug } from "@/lib/demo-store";
 
 export async function GET(_: Request, { params }: { params: { orgId: string } }) {
-  const demo = getDemo(params.orgId) ?? getDemoByOrganizationSlug(params.orgId);
+  const demo = (await getDemo(params.orgId)) ?? (await getDemoByOrganizationSlug(params.orgId));
   if (!demo) return NextResponse.json({ error: "Organization not found." }, { status: 404 });
   const widgetConfig = demo.widgetConfig;
   return NextResponse.json({
