@@ -85,7 +85,7 @@ export function DemoAssistant({
   const visiblePrompts = demo.suggestedQuestions.slice(0, 3);
   const claimSubject = encodeURIComponent(`Claim Harvello assistant for ${demo.organizationName}`);
   const claimBody = encodeURIComponent(
-    `Hi Harvello,\n\nI want to claim this assistant for ${demo.organizationName} at $99/month.\n\nDemo ID: ${demo.id}\nWebsite: ${demo.websiteUrl}\n\nPlease send next steps and the small code snippet our website team can paste into our site.`
+    `Hi Harvello,\n\nWe are interested in this on our website.\n\nOrganization: ${demo.organizationName}\nWebsite: ${demo.websiteUrl}\nDemo ID: ${demo.id}\n\nPlease send next steps.`
   );
   const claimHref = `mailto:hello@harvello.com?subject=${claimSubject}&body=${claimBody}`;
 
@@ -270,70 +270,51 @@ function WidgetDemoExperience({
   claimHref: string;
 }) {
   return (
-    <div className="relative min-h-[calc(100vh-92px)] pb-28">
-      <section className="overflow-hidden rounded-[28px] border border-[#dce4dd] bg-white shadow-soft">
-        <div className="border-b border-[#dce4dd] bg-[#073f32] px-6 py-3 text-sm font-bold text-white">
-          Demo website preview
+    <div className="grid gap-6 lg:min-h-[calc(100vh-120px)] lg:grid-cols-[.9fr_1.1fr]">
+      <section className="rounded-[28px] border border-[#dce4dd] bg-white p-6 shadow-soft">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0b8f4d]">Generated demo</p>
+        <h1 className="mt-3 text-4xl font-black leading-tight text-[#073f32]">{demo.organizationName}</h1>
+        <p className="mt-4 text-base leading-7 text-[#4c625b]">
+          This assistant was generated from public website content. It can answer resident questions, cite source pages, and be installed on the organization website with one script tag.
+        </p>
+
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <Metric label="Webpages indexed" value={demo.pagesIndexed} />
+          <Metric label="PDFs indexed" value={demo.pdfsIndexed} />
         </div>
-        <div className="border-b border-[#dce4dd] bg-[#f8fbf6] px-6 py-8 md:px-10">
-          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-4">
-              <div className="grid h-14 w-14 place-items-center rounded-full bg-[#0b8f4d] text-xl font-black text-white">
-                {demo.organizationName.slice(0, 2).toUpperCase()}
-              </div>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0b8f4d]">Park district website</p>
-                <h1 className="text-3xl font-black text-[#073f32]">{demo.organizationName}</h1>
-              </div>
-            </div>
-            <a href={claimHref} className="rounded-md bg-[#0b8f4d] px-5 py-3 text-center text-sm font-bold text-white hover:bg-[#076f3d]">
-              Claim this assistant
-            </a>
+
+        <div className="mt-6 rounded-2xl bg-[#f5fbf4] p-5">
+          <h2 className="text-lg font-black text-[#073f32]">About this assistant</h2>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {(demo.categories.length ? demo.categories : ["Website Knowledge"]).map((category) => (
+              <span key={category} className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#07513f]">
+                {category}
+              </span>
+            ))}
+          </div>
+          <div className="mt-5 space-y-3 text-sm leading-6 text-[#4c625b]">
+            <p>Answers are grounded in the indexed public pages and show source links when available.</p>
+            <p>Tech lift: paste one script tag. Harvello handles setup, configuration, and source updates.</p>
+            <p>$99/month after claiming.</p>
           </div>
         </div>
 
-        <div className="grid min-h-[620px] lg:grid-cols-[1fr_340px]">
-          <div className="p-6 md:p-10">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0b8f4d]">Summer 2026</p>
-            <h2 className="mt-4 max-w-2xl text-5xl font-black leading-tight text-[#073f32]">Programs, events, and park information in one place.</h2>
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-[#4c625b]">
-              This page is a sample of how Harvello appears on a real park district website. Residents browse as usual, and the assistant stays available in the corner.
-            </p>
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              {[
-                ["Upcoming events", "Concerts, clean-ups, registration dates, and community activities."],
-                ["Programs", "Classes, camps, lessons, and seasonal registration information."],
-                ["Facilities", "Pools, parks, courts, rentals, and public amenities."],
-                ["Resident help", "Answers grounded in the public pages Harvello indexed."]
-              ].map(([title, body]) => (
-                <div key={title} className="rounded-lg border border-[#dce4dd] bg-[#fbfbf6] p-5">
-                  <h3 className="font-black text-[#073f32]">{title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-[#4c625b]">{body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <aside className="border-t border-[#dce4dd] bg-[#f5fbf4] p-6 lg:border-l lg:border-t-0">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#6a7b75]">Generated demo</p>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <Metric label="Webpages indexed" value={demo.pagesIndexed} />
-              <Metric label="PDFs indexed" value={demo.pdfsIndexed} />
-            </div>
-            <div className="mt-5 rounded-lg bg-white p-4 text-sm leading-6 text-[#4c625b]">
-              Tech lift: paste one script tag. Harvello handles setup, configuration, and source updates.
-            </div>
-          </aside>
-        </div>
+        <a
+          href={claimHref}
+          className="focus-ring mt-6 flex min-h-12 items-center justify-center rounded-md bg-[#0b8f4d] px-5 text-center text-sm font-bold text-white hover:bg-[#076f3d]"
+        >
+          Claim this assistant
+        </a>
       </section>
 
-      {widgetOpen ? (
-        <section className="fixed bottom-24 right-6 z-40 flex h-[min(640px,calc(100vh-130px))] w-[min(430px,calc(100vw-32px))] flex-col overflow-hidden rounded-2xl border border-[#dce4dd] bg-white shadow-2xl">
+      <section className="flex min-h-[680px] flex-col overflow-hidden rounded-[28px] border border-[#dce4dd] bg-white shadow-soft">
+        {widgetOpen ? (
+          <>
           <div className="bg-[#073f32] p-4 text-white">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#bde8c7]">Harvello Assistant</p>
-                <h2 className="mt-1 text-xl font-black">Ask about this website</h2>
+                <h2 className="mt-1 text-2xl font-black">Ask about this website</h2>
               </div>
               <button
                 onClick={() => setWidgetOpen(false)}
@@ -394,20 +375,26 @@ function WidgetDemoExperience({
             <input
               value={question}
               onChange={(event) => setQuestion(event.target.value)}
-              placeholder="Ask a question"
+              placeholder="Example: What time are the kids concerts?"
               className="focus-ring min-h-11 flex-1 rounded-md border border-[#dce4dd] px-3 text-sm text-[#073f32] placeholder:text-[#7b8b86]"
             />
             <button className="focus-ring rounded-md bg-[#0b8f4d] px-4 text-sm font-bold text-white hover:bg-[#076f3d]">Ask</button>
           </form>
-        </section>
-      ) : null}
-
-      <button
-        onClick={() => setWidgetOpen(!widgetOpen)}
-        className="fixed bottom-6 right-6 z-40 rounded-full bg-[#0b8f4d] px-5 py-4 text-sm font-black text-white shadow-2xl hover:bg-[#076f3d]"
-      >
-        {widgetOpen ? "Close" : "Ask Harvello"}
-      </button>
+          </>
+        ) : (
+          <div className="grid flex-1 place-items-center bg-[#fbfbf6] p-8 text-center">
+            <div>
+              <h2 className="text-2xl font-black text-[#073f32]">Assistant closed</h2>
+              <button
+                onClick={() => setWidgetOpen(true)}
+                className="focus-ring mt-5 rounded-md bg-[#0b8f4d] px-5 py-3 text-sm font-bold text-white hover:bg-[#076f3d]"
+              >
+                Open assistant
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
