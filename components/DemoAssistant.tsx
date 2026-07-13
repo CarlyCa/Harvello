@@ -222,7 +222,7 @@ function Metric({ label, value }: { label: string; value: number }) {
 }
 
 function FormattedAnswer({ text }: { text: string }) {
-  const blocks = text.replace(/\n{3,}/g, "\n\n").split(/\n\s*\n/);
+  const blocks = cleanDisplayedAnswer(text).replace(/\n{3,}/g, "\n\n").split(/\n\s*\n/);
 
   return (
     <div className="space-y-3 text-sm leading-6 text-[#073f32]">
@@ -248,6 +248,15 @@ function FormattedAnswer({ text }: { text: string }) {
       })}
     </div>
   );
+}
+
+function cleanDisplayedAnswer(text: string) {
+  return text
+    .replace(/^Based on the public website content indexed for this demo:\s*/i, "")
+    .replace(/<\s*Back to all events/gi, "")
+    .replace(/\b(Ways to play|Event Details|Download PDF|Save This Page as a PDF|Add to my calendar|Google Calendar|iCalendar|Outlook 365|Outlook Live)\b/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 }
 
 function formatInline(text: string) {

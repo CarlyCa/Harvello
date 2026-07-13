@@ -89,6 +89,7 @@ function normalizeTrigger(value: string) {
 
 function cleanAssistantAnswer(answer?: string) {
   return answer
+    ?.replace(/^Based on the public website content indexed for this demo:\s*/i, "")
     ?.replace(/\n?\s*Sources?:\s*(?:\[[^\]]+\]\([^)]+\)[,;.\s]*)+$/is, "")
     .replace(/\n?\s*Source links?:[\s\S]*$/i, "")
     .replace(/\n{3,}/g, "\n\n")
@@ -165,7 +166,7 @@ function extractRelevantSnippet(content: string, questionTerms: string[]) {
     .map((term) => lower.indexOf(term))
     .filter((index) => index >= 0)
     .sort((a, b) => a - b)[0];
-  const start = firstHit ? Math.max(0, firstHit - 120) : 0;
+  const start = firstHit !== undefined ? Math.max(0, firstHit - 120) : 0;
   const excerpt = content.slice(start, start + 520).trim();
   const sentenceLike = excerpt
     .split(/(?<=[.!?])\s+/)
