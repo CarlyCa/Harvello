@@ -83,6 +83,36 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="bg-[#f4faf2] px-6 py-16">
+        <div className="mx-auto grid max-w-7xl gap-8 rounded-[28px] border border-[#dce4dd] bg-white p-8 shadow-soft lg:grid-cols-[.9fr_1.1fr] lg:items-center">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0b8f4d]">Contact us</p>
+            <h2 className="mt-3 text-3xl font-black tracking-normal text-[#073f32]">Want Harvello on your park district website?</h2>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-[#4c625b]">
+              Send us your website and preferred brand color. We will prepare the assistant, send your team the one-line install snippet, and help you go live.
+            </p>
+          </div>
+          <div className="rounded-2xl bg-[#fbfbf6] p-6">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <a
+                href="mailto:hello@harvello.com?subject=Harvello%20for%20our%20park%20district&body=Hi%20Harvello%2C%0A%0AI%27d%20like%20to%20learn%20more%20about%20adding%20Harvello%20to%20our%20website.%0A%0AWebsite%3A%20%0APreferred%20brand%20color%3A%20%0A"
+                className="focus-ring rounded-md bg-[#0b8f4d] px-5 py-3 text-center text-sm font-bold text-white hover:bg-[#076f3d]"
+              >
+                Email Harvello
+              </a>
+              <a href="/demo" className="focus-ring rounded-md border border-[#cfded2] bg-white px-5 py-3 text-center text-sm font-bold text-[#073f32] hover:border-[#0b8f4d]">
+                Generate a demo
+              </a>
+            </div>
+            <div className="mt-5 grid gap-3 text-sm font-semibold text-[#4c625b] sm:grid-cols-3">
+              <div className="rounded-lg border border-[#dce4dd] bg-white p-3">$99/month</div>
+              <div className="rounded-lg border border-[#dce4dd] bg-white p-3">One script tag</div>
+              <div className="rounded-lg border border-[#dce4dd] bg-white p-3">Setup help included</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="bg-[#024331] px-6 py-14 text-white">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col gap-5 rounded-lg border border-white/20 bg-white p-6 text-[#073f32] shadow-soft md:flex-row md:items-center md:justify-between">
