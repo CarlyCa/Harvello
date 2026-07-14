@@ -309,7 +309,7 @@ function WidgetDemoExperience({
       </section>
 
       <section className="relative min-h-[680px] overflow-hidden rounded-[28px] border border-[#dce4dd] bg-[radial-gradient(circle_at_76%_18%,#dcefe0_0%,rgba(220,239,224,0)_34%),linear-gradient(180deg,#ffffff_0%,#f5fbf4_100%)] shadow-soft">
-        <div className="absolute left-6 top-6 max-w-sm">
+        <div className="absolute left-6 right-6 top-6 max-w-2xl">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0b8f4d]">Widget preview</p>
           <h2 className="mt-2 text-3xl font-black leading-tight text-[#073f32]">The assistant residents will see.</h2>
           <p className="mt-3 text-sm leading-6 text-[#4c625b]">
@@ -318,12 +318,12 @@ function WidgetDemoExperience({
         </div>
 
         {widgetOpen ? (
-          <div className="absolute bottom-16 right-4 z-20 flex max-h-[560px] w-[min(440px,calc(100%-32px))] flex-col overflow-hidden rounded-2xl border border-[#cbd8cf] bg-white shadow-soft">
-          <div className="bg-[#073f32] p-4 text-white">
+          <div className="absolute bottom-16 left-6 right-6 top-44 z-20 flex flex-col overflow-hidden rounded-2xl border border-[#cbd8cf] bg-white shadow-soft">
+          <div className="bg-[#073f32] p-5 text-white">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#bde8c7]">Harvello Assistant</p>
-                <h2 className="mt-1 text-2xl font-black">Ask about this website</h2>
+                <h2 className="mt-1 text-3xl font-black">Ask about this website</h2>
               </div>
               <button
                 onClick={() => setWidgetOpen(false)}
@@ -334,16 +334,16 @@ function WidgetDemoExperience({
               </button>
             </div>
           </div>
-          <div className="min-h-0 flex-1 space-y-3 overflow-auto bg-[#fbfbf6] p-4">
+          <div className="min-h-0 flex-1 space-y-4 overflow-auto bg-[#fbfbf6] p-5">
             {messages.length === 0 ? (
-              <div className="rounded-xl border border-[#dce4dd] bg-white p-4">
-                <p className="font-black text-[#073f32]">Try a resident question</p>
-                <div className="mt-3 space-y-2">
+              <div className="rounded-xl border border-[#dce4dd] bg-white p-5">
+                <p className="text-lg font-black text-[#073f32]">Try a resident question</p>
+                <div className="mt-4 space-y-3">
                   {visiblePrompts.map((prompt) => (
                     <button
                       key={prompt}
                       onClick={() => ask(prompt)}
-                      className="focus-ring w-full rounded-lg border border-[#dce4dd] bg-[#f5fbf4] p-3 text-left text-sm font-bold leading-5 text-[#073f32] hover:border-[#0b8f4d]"
+                      className="focus-ring w-full rounded-lg border border-[#dce4dd] bg-[#f5fbf4] p-4 text-left text-base font-bold leading-6 text-[#073f32] hover:border-[#0b8f4d]"
                     >
                       {prompt}
                     </button>
@@ -385,9 +385,9 @@ function WidgetDemoExperience({
               value={question}
               onChange={(event) => setQuestion(event.target.value)}
               placeholder="Example: What time are the kids concerts?"
-              className="focus-ring min-h-11 flex-1 rounded-md border border-[#dce4dd] px-3 text-sm text-[#073f32] placeholder:text-[#7b8b86]"
+              className="focus-ring min-h-12 flex-1 rounded-md border border-[#dce4dd] px-4 text-base text-[#073f32] placeholder:text-[#7b8b86]"
             />
-            <button className="focus-ring rounded-md bg-[#0b8f4d] px-4 text-sm font-bold text-white hover:bg-[#076f3d]">Ask</button>
+            <button className="focus-ring rounded-md bg-[#0b8f4d] px-5 text-base font-bold text-white hover:bg-[#076f3d]">Ask</button>
           </form>
           </div>
         ) : (
