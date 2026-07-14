@@ -111,9 +111,6 @@ export default function HomePage() {
             >
               Submit request
             </button>
-            <p className="mt-3 text-center text-xs font-semibold text-[#4c625b]">
-              Form wiring coming next. For now, use this as the contact layout.
-            </p>
           </form>
         </div>
       </section>
