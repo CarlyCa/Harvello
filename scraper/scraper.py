@@ -8,8 +8,8 @@ What it does:
 - Prioritizes staff, directory, communications, marketing, and contact pages
 - Extracts publicly listed email addresses
 - Attempts to associate each email with a nearby name and job title
-- Filters for communications, marketing, public information, city management,
-  executive leadership, and related roles
+- Filters for named communications, marketing, public information, brand,
+  social media, and community engagement roles
 - Writes a deduplicated CSV
 
 This script intentionally:
@@ -53,23 +53,14 @@ TARGET_TITLE_PATTERNS = [
     r"\bcommunity relations\b",
     r"\bpublic affairs\b",
     r"\bdigital media\b",
-    r"\bweb(site)?\b",
+    r"\bsocial media\b",
+    r"\bbrand strategy\b",
+    r"\bbrand(?:ing)?\b",
+    r"\bcreative design\b",
+    r"\bweb(?:site)?\s+(?:manager|coordinator|specialist|administrator)\b",
     r"\bmedia relations\b",
-    r"\bexecutive director\b",
-    r"\bcity manager\b",
-    r"\btown manager\b",
-    r"\bvillage manager\b",
-    r"\bmunicipal administrator\b",
-    r"\bcity administrator\b",
-    r"\btown administrator\b",
-    r"\bvillage administrator\b",
-    r"\bassistant city manager\b",
-    r"\bassistant town manager\b",
-    r"\bassistant village manager\b",
-    r"\bcity clerk\b",
-    r"\btown clerk\b",
-    r"\bvillage clerk\b",
-    r"\bsuperintendent\b.*\b(marketing|communications)\b",
+    r"\b(?:manager|director|coordinator|specialist|superintendent)\b.{0,80}\b(marketing|communications?|public information|community engagement|social media|brand)\b",
+    r"\b(marketing|communications?|public information|community engagement|social media|brand)\b.{0,80}\b(?:manager|director|coordinator|specialist|superintendent)\b",
 ]
 
 PRIORITY_LINK_TERMS = [
@@ -90,11 +81,40 @@ PRIORITY_LINK_TERMS = [
 
 GENERIC_EMAIL_PREFIXES = {
     "info", "contact", "admin", "office", "hello", "support", "webmaster",
-    "communications", "marketing", "media", "news", "clerk"
+    "communications", "marketing", "media", "news", "clerk", "sustainability",
+    "volunteer", "volunteers", "hr", "humanresources", "jobs", "careers"
 }
+
+NAME_PREFIXES_TO_STRIP = (
+    "Community Engagement",
+    "Public Information",
+    "Communications",
+    "Marketing",
+    "Administration",
+)
+
+PHONE_RE = re.compile(r"(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]\d{3}[-.\s]\d{4}")
+CERTIFICATION_RE = re.compile(r"\b(CPRP|CPA|CPRE|MBA|MPA|SHRM(?:-CP|-SCP)?)\b", re.IGNORECASE)
 
 EMAIL_RE = re.compile(
     r"(?<![\w.+-])([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})(?![\w.-])",
+    re.IGNORECASE,
+)
+
+TARGET_TITLE_RE = re.compile(
+    r"\b("
+    r"(?:Director|Manager|Coordinator|Specialist|Superintendent|Officer|Lead|Head|"
+    r"Assistant Director|Deputy Director)?"
+    r"\s*(?:of\s+)?"
+    r"(?:Marketing(?:\s+and\s+Communications?)?|Communications?|Public Information|"
+    r"Community Engagement|Community Relations|Public Affairs|Digital Media|Social Media|"
+    r"Brand Strategy|Branding|Creative Design|Media Relations|Website)"
+    r"(?:\s+(?:and|&)\s+(?:Marketing|Communications?|Public Information|"
+    r"Community Engagement|Community Relations|Public Affairs|Digital Media|Social Media|"
+    r"Brand Strategy|Branding|Creative Design|Media Relations|Website))?"
+    r"(?:\s+(?:Director|Manager|Coordinator|Specialist|Superintendent|Officer|Lead|Head|"
+    r"Assistant Director|Deputy Director))?"
+    r")\b",
     re.IGNORECASE,
 )
 
@@ -143,6 +163,10 @@ def title_matches(text: str) -> bool:
     return any(re.search(pattern, lowered, re.IGNORECASE) for pattern in TARGET_TITLE_PATTERNS)
 
 
+def is_generic_email(email: str) -> bool:
+    return email.split("@", 1)[0].lower() in GENERIC_EMAIL_PREFIXES
+
+
 def split_name(full_name: str) -> tuple[str, str]:
     parts = full_name.split()
     if len(parts) < 2:
@@ -157,11 +181,22 @@ def looks_like_name(text: str) -> bool:
     bad_terms = {
         "park district", "city of", "town of", "village of", "contact us",
         "staff directory", "communications", "marketing", "department",
-        "privacy policy", "terms of use", "government"
+        "privacy policy", "terms of use", "government", "administrative offices",
+        "public information", "community engagement", "social media", "brand strategy", "creative design",
+        "information technology", "human resources", "risk management", "finance",
+        "accounting", "recreation", "parks planning", "university", "college", "school"
     }
     if any(term in text.lower() for term in bad_terms):
         return False
     return bool(NAME_RE.fullmatch(text))
+
+
+def clean_name_candidate(text: str) -> str:
+    text = clean_text(text)
+    for prefix in NAME_PREFIXES_TO_STRIP:
+        if text.lower().startswith(prefix.lower() + " "):
+            return clean_text(text[len(prefix):])
+    return text
 
 
 def get_robot_parser(session: requests.Session, base_url: str) -> RobotFileParser:
@@ -253,6 +288,11 @@ def nearby_text_blocks(node, max_blocks: int = 8) -> list[str]:
                 blocks.append(text)
                 current = parent
                 break
+    else:
+        if getattr(node, "get_text", None):
+            text = clean_text(node.get_text(" ", strip=True))
+            if text:
+                blocks.append(text)
 
     # Add nearby siblings for pages that separate name/title/email into elements.
     for sibling in list(current.previous_siblings)[-3:] + list(current.next_siblings)[:3]:
@@ -278,54 +318,76 @@ def nearby_text_blocks(node, max_blocks: int = 8) -> list[str]:
     return deduped[:max_blocks]
 
 
+def email_context(email: str, text: str) -> str:
+    text = clean_text(text)
+    match = re.search(re.escape(email), text, re.IGNORECASE)
+    if not match:
+        return ""
+
+    previous_emails = list(EMAIL_RE.finditer(text[:match.start()]))
+    start = previous_emails[-1].end() if previous_emails else max(0, match.start() - 220)
+    next_email = EMAIL_RE.search(text, match.end())
+    end = next_email.start() if next_email else min(len(text), match.end() + 80)
+    return clean_text(text[start:end])
+
+
+def title_matches_in_text(text: str) -> list[re.Match[str]]:
+    return list(TARGET_TITLE_RE.finditer(text))
+
+
+def infer_name_title_from_context(context: str, email: str) -> tuple[str, str]:
+    before_email = clean_text(context.split(email, 1)[0])
+    before_email = PHONE_RE.sub(" ", before_email)
+    before_email = CERTIFICATION_RE.sub(" ", before_email)
+    before_email = clean_text(before_email)
+
+    for match in reversed(title_matches_in_text(before_email)):
+        left = clean_text(before_email[:match.start()])
+        title = clean_text(match.group(1))[:120]
+        if not title_matches(title):
+            continue
+
+        candidates = NAME_RE.findall(left[-90:])
+        valid = [
+            candidate
+            for candidate in (clean_name_candidate(candidate) for candidate in candidates)
+            if looks_like_name(candidate)
+        ]
+        if valid:
+            return valid[-1], title
+
+    return "", ""
+
+
 def infer_name_title(email: str, blocks: Iterable[str]) -> tuple[str, str, str]:
-    combined_blocks = [clean_text(b) for b in blocks if clean_text(b)]
-
-    # Find title-containing text first.
+    contexts = [
+        context
+        for block in blocks
+        if email.lower() in clean_text(block).lower()
+        for context in [email_context(email, block)]
+        if context
+    ]
     title = ""
-    for block in combined_blocks:
-        if title_matches(block):
-            # Prefer a short line containing the target phrase.
-            chunks = re.split(r"[|•\n]| {2,}", block)
-            title_candidates = [clean_text(c) for c in chunks if title_matches(c)]
-            if title_candidates:
-                title = min(title_candidates, key=len)
-            else:
-                title = block[:160]
-            break
-
-    # Try strong name candidates near the email.
     full_name = ""
-    for block in combined_blocks:
-        # Remove email and title-like phrases before scanning.
-        stripped = clean_text(block.replace(email, " "))
-        candidates = NAME_RE.findall(stripped)
-        for candidate in candidates:
-            candidate = clean_text(candidate)
-            if looks_like_name(candidate):
-                full_name = candidate
-                break
+
+    for context in contexts:
+        full_name, title = infer_name_title_from_context(context, email)
         if full_name:
             break
 
-    # Infer from email only as a lower-confidence fallback.
-    confidence = "high" if full_name and title else "medium"
-    if not full_name:
-        local = email.split("@", 1)[0].lower()
-        if local not in GENERIC_EMAIL_PREFIXES:
-            local = re.sub(r"\d+", "", local)
-            pieces = [p for p in re.split(r"[._-]+", local) if p]
-            if len(pieces) >= 2:
-                full_name = " ".join(p.capitalize() for p in pieces[:2])
-            elif len(local) >= 5 and "." not in local:
-                confidence = "low"
-        else:
-            confidence = "low"
-
-    if not title:
-        confidence = "low" if not full_name else "medium"
+    confidence = "high" if full_name and title else "low"
 
     return full_name, title, confidence
+
+
+def is_target_contact(email: str, full_name: str, title: str) -> bool:
+    if is_generic_email(email):
+        return False
+    if not full_name or not title:
+        return False
+    if title.lower() in {"marketing", "communications", "branding", "website"}:
+        return False
+    return title_matches(title)
 
 
 def extract_contacts_from_page(
@@ -348,7 +410,7 @@ def extract_contacts_from_page(
             seen_emails.add(email)
             blocks = nearby_text_blocks(link)
             full_name, title, confidence = infer_name_title(email, blocks)
-            if title_matches(" ".join(blocks)) or email.split("@")[0] in GENERIC_EMAIL_PREFIXES:
+            if is_target_contact(email, full_name, title):
                 first, last = split_name(full_name)
                 contacts.append(Contact(
                     organization=organization,
@@ -374,7 +436,7 @@ def extract_contacts_from_page(
         blocks = nearby_text_blocks(text_node.parent if getattr(text_node, "parent", None) else soup)
         full_name, title, confidence = infer_name_title(email, blocks)
 
-        if title_matches(" ".join(blocks)) or email.split("@")[0] in GENERIC_EMAIL_PREFIXES:
+        if is_target_contact(email, full_name, title):
             first, last = split_name(full_name)
             contacts.append(Contact(
                 organization=organization,

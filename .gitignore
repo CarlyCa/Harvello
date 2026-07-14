@@ -3,5 +3,6 @@ node_modules
 tsconfig.tsbuildinfo
 .env.local
 .data
+municipal_contacts.csv
 __pycache__/
 *.py[cod]
