@@ -158,3 +158,23 @@ export async function getDemoByOrganizationSlug(slug: string) {
   ensureLoaded();
   return Array.from(demos.values()).find((demo) => demo.organizationSlug === slug) ?? null;
 }
+
+export async function listDemos() {
+  const supabase = getServiceSupabase();
+  if (supabase) {
+    const { data, error } = await supabase
+      .from("harvello_demos")
+      .select("record")
+      .order("updated_at", { ascending: false })
+      .limit(200);
+    if (!error && data) {
+      const records = data.map((row) => row.record as DemoRecord);
+      records.forEach(cacheDemo);
+      return records;
+    }
+    if (error) console.error("Supabase list failed; using local demo storage.", error);
+  }
+
+  ensureLoaded();
+  return Array.from(demos.values()).sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+}
