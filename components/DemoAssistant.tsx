@@ -87,7 +87,7 @@ export function DemoAssistant({
   const claimBody = encodeURIComponent(
     `Hi Harvello,\n\nWe are interested in this on our website.\n\nOrganization: ${demo.organizationName}\nWebsite: ${demo.websiteUrl}\nDemo ID: ${demo.id}\n\nPlease send next steps.`
   );
-  const claimHref = `mailto:hello@harvello.com?subject=${claimSubject}&body=${claimBody}`;
+  const claimHref = `mailto:carly@getharvello.com?subject=${claimSubject}&body=${claimBody}`;
 
   if (variant === "widget") {
     return (
