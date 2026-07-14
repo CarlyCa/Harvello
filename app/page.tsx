@@ -1,5 +1,6 @@
 import { UrlDemoForm } from "@/components/UrlDemoForm";
 import { HarvelloLogo } from "@/components/HarvelloLogo";
+import { ContactForm } from "@/components/ContactForm";
 
 export default function HomePage() {
   return (
@@ -89,29 +90,7 @@ export default function HomePage() {
               Have a question or want to talk through setup? Send us your contact information and we will follow up.
             </p>
           </div>
-          <form className="rounded-2xl bg-[#fbfbf6] p-6">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <ContactField label="Name" name="name" placeholder="Jane Smith" />
-              <ContactField label="Email" name="email" placeholder="jane@parkdistrict.org" type="email" />
-              <ContactField label="Phone" name="phone" placeholder="(847) 555-0100" type="tel" />
-              <ContactField label="Organization" name="organization" placeholder="Riverdale Park District" />
-            </div>
-            <label className="mt-4 block">
-              <span className="text-sm font-bold text-[#073f32]">Message</span>
-              <textarea
-                name="message"
-                rows={4}
-                placeholder="How can we help?"
-                className="focus-ring mt-2 w-full rounded-md border border-[#dce4dd] bg-white px-3 py-3 text-sm leading-6 text-[#073f32] placeholder:text-[#7b8b86]"
-              />
-            </label>
-            <button
-              type="button"
-              className="focus-ring mt-5 w-full rounded-md bg-[#0b8f4d] px-5 py-3 text-sm font-bold text-white hover:bg-[#076f3d]"
-            >
-              Submit request
-            </button>
-          </form>
+          <ContactForm />
         </div>
       </section>
 
@@ -228,30 +207,6 @@ function HeroProductVisual() {
         </div>
       </div>
     </div>
-  );
-}
-
-function ContactField({
-  label,
-  name,
-  placeholder,
-  type = "text"
-}: {
-  label: string;
-  name: string;
-  placeholder: string;
-  type?: string;
-}) {
-  return (
-    <label className="block">
-      <span className="text-sm font-bold text-[#073f32]">{label}</span>
-      <input
-        name={name}
-        type={type}
-        placeholder={placeholder}
-        className="focus-ring mt-2 min-h-11 w-full rounded-md border border-[#dce4dd] bg-white px-3 text-sm text-[#073f32] placeholder:text-[#7b8b86]"
-      />
-    </label>
   );
 }
 
