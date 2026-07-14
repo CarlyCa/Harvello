@@ -308,17 +308,17 @@ function WidgetDemoExperience({
         </a>
       </section>
 
-      <section className="relative min-h-[680px] overflow-hidden rounded-[28px] border border-[#dce4dd] bg-[radial-gradient(circle_at_76%_18%,#dcefe0_0%,rgba(220,239,224,0)_34%),linear-gradient(180deg,#ffffff_0%,#f5fbf4_100%)] shadow-soft">
-        <div className="absolute left-6 right-6 top-6 max-w-2xl">
+      <section className="flex min-h-[680px] flex-col overflow-hidden rounded-[28px] border border-[#dce4dd] bg-[radial-gradient(circle_at_76%_18%,#dcefe0_0%,rgba(220,239,224,0)_34%),linear-gradient(180deg,#ffffff_0%,#f5fbf4_100%)] p-6 shadow-soft">
+        <div className="max-w-2xl">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0b8f4d]">Widget preview</p>
-          <h2 className="mt-2 text-3xl font-black leading-tight text-[#073f32]">The assistant residents will see.</h2>
-          <p className="mt-3 text-sm leading-6 text-[#4c625b]">
+          <h2 className="mt-2 text-2xl font-black leading-tight text-[#073f32]">The assistant residents will see.</h2>
+          <p className="mt-2 text-sm leading-6 text-[#4c625b]">
             This is the embeddable Harvello widget. Your customer&apos;s web team places it with one script tag.
           </p>
         </div>
 
         {widgetOpen ? (
-          <div className="absolute bottom-16 left-6 right-6 top-44 z-20 flex flex-col overflow-hidden rounded-2xl border border-[#cbd8cf] bg-white shadow-soft">
+          <div className="mt-5 flex min-h-[500px] flex-1 flex-col overflow-hidden rounded-2xl border border-[#cbd8cf] bg-white shadow-soft">
           <div className="bg-[#073f32] p-5 text-white">
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -393,20 +393,11 @@ function WidgetDemoExperience({
         ) : (
           <button
             onClick={() => setWidgetOpen(true)}
-            className="focus-ring absolute bottom-6 right-6 z-20 rounded-full bg-[#0b8f4d] px-6 py-4 text-sm font-black text-white shadow-soft hover:bg-[#076f3d]"
+            className="focus-ring mt-auto self-end rounded-full bg-[#0b8f4d] px-6 py-4 text-sm font-black text-white shadow-soft hover:bg-[#076f3d]"
           >
             Ask Harvello
           </button>
         )}
-        {widgetOpen ? (
-          <button
-            onClick={() => setWidgetOpen(false)}
-            className="focus-ring absolute bottom-6 right-6 z-30 grid h-12 w-12 place-items-center rounded-full bg-[#0b8f4d] text-lg font-black text-white shadow-soft hover:bg-[#076f3d]"
-            aria-label="Close assistant"
-          >
-            X
-          </button>
-        ) : null}
       </section>
     </div>
   );
