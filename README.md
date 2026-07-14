@@ -22,6 +22,7 @@ Copy `.env.example` to `.env.local` and fill in:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
+- `ADMIN_PASSWORD` protects `/admin`, `/dashboard`, and dashboard setup saves. Username is `admin`.
 
 ## Database
 
