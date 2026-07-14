@@ -5,12 +5,13 @@ import { cleanText } from "./text";
 import type { IndexedSource } from "./types";
 import { createId } from "./ids";
 
-const MAX_PAGES = 50;
-const MAX_PDFS = 10;
-const MAX_DEPTH = 3;
+const MAX_PAGES = 125;
+const MAX_PDFS = 20;
+const MAX_DEPTH = 4;
 const MAX_PDF_BYTES = 6 * 1024 * 1024;
-const MAX_CRAWL_MS = 45_000;
-const FETCH_TIMEOUT_MS = 7_000;
+const MAX_CRAWL_MS = 90_000;
+const FETCH_TIMEOUT_MS = 10_000;
+const MAX_SITEMAP_URLS = 200;
 
 type CrawlProgress = (message: string, progress: number) => void;
 
@@ -23,6 +24,10 @@ export async function crawlWebsite(root: URL, onProgress?: CrawlProgress) {
   const allowedByRobots = await loadRobots(root);
 
   onProgress?.("Finding public pages", 18);
+  const sitemapUrls = await discoverSitemapUrls(root, allowedByRobots);
+  for (const sitemapUrl of sitemapUrls) {
+    queue.push({ url: sitemapUrl, depth: 1 });
+  }
 
   while (queue.length > 0 && sources.filter((source) => source.type === "webpage").length < MAX_PAGES) {
     if (Date.now() - startedAt > MAX_CRAWL_MS) break;
@@ -114,6 +119,100 @@ function extractHtml(url: URL, html: string, root: URL) {
     },
     links
   };
+}
+
+async function discoverSitemapUrls(root: URL, allowedByRobots: (url: URL) => boolean) {
+  const sitemapQueue = await discoverSitemapLocations(root);
+  const seenSitemaps = new Set<string>();
+  const found = new Map<string, URL>();
+
+  while (sitemapQueue.length && found.size < MAX_SITEMAP_URLS) {
+    const sitemapUrl = sitemapQueue.shift();
+    if (!sitemapUrl) continue;
+    const sitemapKey = canonicalUrl(sitemapUrl);
+    if (seenSitemaps.has(sitemapKey)) continue;
+    seenSitemaps.add(sitemapKey);
+
+    const response = await safeFetch(sitemapUrl);
+    if (!response) continue;
+    const text = await response.text();
+    const $ = cheerio.load(text, { xmlMode: true });
+
+    $("sitemap loc").each((_, element) => {
+      if (sitemapQueue.length + seenSitemaps.size > 25) return;
+      const loc = $(element).text().trim();
+      if (!loc) return;
+      try {
+        const candidate = new URL(loc, root);
+        if (isInternalUrl(candidate, root)) sitemapQueue.push(candidate);
+      } catch {
+        // Ignore malformed sitemap locations.
+      }
+    });
+
+    $("url loc").each((_, element) => {
+      if (found.size >= MAX_SITEMAP_URLS) return;
+      const loc = $(element).text().trim();
+      if (!loc) return;
+      try {
+        const candidate = new URL(loc, root);
+        if (!isInternalUrl(candidate, root) || isBlockedPath(candidate) || !allowedByRobots(candidate)) return;
+        found.set(canonicalUrl(candidate), candidate);
+      } catch {
+        // Ignore malformed sitemap entries.
+      }
+    });
+  }
+
+  return Array.from(found.values()).sort((a, b) => pagePriority(a) - pagePriority(b));
+}
+
+async function discoverSitemapLocations(root: URL) {
+  const locations = new Map<string, URL>();
+  const defaultSitemap = new URL("/sitemap.xml", root);
+  locations.set(canonicalUrl(defaultSitemap), defaultSitemap);
+
+  const robotsUrl = new URL("/robots.txt", root);
+  const response = await safeFetch(robotsUrl);
+  if (!response) return Array.from(locations.values());
+
+  const text = await response.text();
+  for (const line of text.split("\n")) {
+    const trimmed = line.split("#")[0].trim();
+    if (!/^sitemap:/i.test(trimmed)) continue;
+    const loc = trimmed.split(":").slice(1).join(":").trim();
+    if (!loc) continue;
+    try {
+      const candidate = new URL(loc, root);
+      if (isInternalUrl(candidate, root)) locations.set(canonicalUrl(candidate), candidate);
+    } catch {
+      // Ignore malformed sitemap declarations.
+    }
+  }
+
+  return Array.from(locations.values());
+}
+
+function pagePriority(url: URL) {
+  const path = url.pathname.toLowerCase();
+  const priorities = [
+    "program",
+    "event",
+    "calendar",
+    "register",
+    "registration",
+    "facility",
+    "park",
+    "pool",
+    "aquatic",
+    "camp",
+    "rental",
+    "hours",
+    "contact",
+    "faq"
+  ];
+  const index = priorities.findIndex((term) => path.includes(term));
+  return index === -1 ? priorities.length : index;
 }
 
 async function extractPdf(url: URL, response: Response) {

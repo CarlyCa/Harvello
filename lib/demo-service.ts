@@ -32,7 +32,7 @@ export async function createDemoFromUrl(input: string) {
   await assertPublicWebsite(url);
   const domain = url.hostname.replace(/^www\./, "");
   const recent = await findRecentDemoByDomain(domain);
-  if (recent && recent.status === "ready") return recent;
+  if (recent && recent.status === "ready" && recent.pagesIndexed >= 25) return recent;
 
   const demoId = createId("demo");
   const organizationId = createId("org");
