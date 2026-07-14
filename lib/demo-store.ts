@@ -1,5 +1,6 @@
 import type { DemoRecord } from "./types";
 import { getServiceSupabase } from "./supabase";
+import { createId } from "./ids";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -139,6 +140,57 @@ export function incrementChatCount(sessionKey: string) {
   return next;
 }
 
+export async function recordChatEvent({
+  demoId,
+  question,
+  mode,
+  confidence,
+  citationsCount
+}: {
+  demoId: string;
+  question: string;
+  mode: "demo" | "hosted" | "widget";
+  confidence: number;
+  citationsCount: number;
+}) {
+  try {
+    const current = await getDemo(demoId);
+    if (!current) return;
+
+    const analytics = current.analytics ?? {
+      totalQuestions: 0,
+      demoQuestions: 0,
+      widgetQuestions: 0,
+      hostedQuestions: 0,
+      questions: []
+    };
+    const askedAt = new Date().toISOString();
+    await saveDemo({
+      ...current,
+      analytics: {
+        totalQuestions: analytics.totalQuestions + 1,
+        demoQuestions: analytics.demoQuestions + (mode === "demo" ? 1 : 0),
+        widgetQuestions: analytics.widgetQuestions + (mode === "widget" ? 1 : 0),
+        hostedQuestions: analytics.hostedQuestions + (mode === "hosted" ? 1 : 0),
+        lastAskedAt: askedAt,
+        questions: [
+          {
+            id: createId("q"),
+            question: question.slice(0, 1000),
+            mode,
+            askedAt,
+            confidence,
+            citationsCount
+          },
+          ...analytics.questions
+        ].slice(0, 100)
+      }
+    });
+  } catch (error) {
+    console.error("Analytics recording failed.", error);
+  }
+}
+
 export async function getDemoByOrganizationSlug(slug: string) {
   const supabase = getServiceSupabase();
   if (supabase) {
@@ -177,4 +229,27 @@ export async function listDemos() {
 
   ensureLoaded();
   return Array.from(demos.values()).sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+}
+
+export async function findDemoForSignin(identifier: string, email?: string) {
+  const normalized = identifier.trim().toLowerCase();
+  const normalizedDomain = normalized
+    .replace(/^https?:\/\//, "")
+    .replace(/^www\./, "")
+    .replace(/\/.*$/, "");
+  const normalizedEmail = email?.trim().toLowerCase();
+  const records = await listDemos();
+
+  return (
+    records.find((demo) => {
+      const claimedEmail = demo.claimedEmail?.toLowerCase();
+      return (
+        demo.id.toLowerCase() === normalized ||
+        demo.organizationSlug.toLowerCase() === normalized ||
+        demo.domain.toLowerCase() === normalizedDomain ||
+        demo.websiteUrl.toLowerCase().includes(normalizedDomain) ||
+        Boolean(normalizedEmail && claimedEmail === normalizedEmail)
+      );
+    }) ?? null
+  );
 }

@@ -12,7 +12,7 @@ export default function HomePage() {
           </a>
 
           <div className="flex items-center gap-3">
-            <a href="/dashboard" className="hidden text-sm font-semibold text-[#073f32] hover:text-[#0d8c4d] sm:inline">
+            <a href="/signin" className="hidden text-sm font-semibold text-[#073f32] hover:text-[#0d8c4d] sm:inline">
               Sign in
             </a>
             <a href="/demo" className="rounded-md bg-[#0b8f4d] px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#076f3d]">

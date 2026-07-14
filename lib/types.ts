@@ -53,6 +53,21 @@ export type DemoRecord = {
     answer: string;
     active: boolean;
   }>;
+  analytics?: {
+    totalQuestions: number;
+    demoQuestions: number;
+    widgetQuestions: number;
+    hostedQuestions: number;
+    lastAskedAt?: string;
+    questions: Array<{
+      id: string;
+      question: string;
+      mode: "demo" | "hosted" | "widget";
+      askedAt: string;
+      confidence: number;
+      citationsCount: number;
+    }>;
+  };
   error?: string;
   claimedEmail?: string;
 };

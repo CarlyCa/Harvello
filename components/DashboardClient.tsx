@@ -19,6 +19,7 @@ export function DashboardClient({ demoId }: { demoId?: string }) {
   const [demo, setDemo] = useState<DemoRecord | null>(null);
   const [widgetConfig, setWidgetConfig] = useState<WidgetConfig | null>(null);
   const [hardcodedAnswers, setHardcodedAnswers] = useState<HardcodedAnswer[]>([]);
+  const [claimedEmail, setClaimedEmail] = useState("");
   const [status, setStatus] = useState("");
 
   useEffect(() => {
@@ -31,6 +32,7 @@ export function DashboardClient({ demoId }: { demoId?: string }) {
         if (nextDemo) {
           setWidgetConfig(nextDemo.widgetConfig ?? defaultWidgetConfig(nextDemo));
           setHardcodedAnswers(nextDemo.hardcodedAnswers ?? []);
+          setClaimedEmail(nextDemo.claimedEmail ?? "");
         }
       })
       .catch(() => setStatus("Could not load this demo. Refresh and try again."));
@@ -51,7 +53,7 @@ export function DashboardClient({ demoId }: { demoId?: string }) {
     const response = await fetch(`/api/demo/${demo.id}`, {
       method: "PATCH",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ widgetConfig, hardcodedAnswers })
+      body: JSON.stringify({ widgetConfig, hardcodedAnswers, claimedEmail })
     });
     const data = await readJson(response);
     if (!response.ok) {
@@ -61,6 +63,7 @@ export function DashboardClient({ demoId }: { demoId?: string }) {
     setDemo(data.demo);
     setWidgetConfig(data.demo.widgetConfig ?? defaultWidgetConfig(data.demo));
     setHardcodedAnswers(data.demo.hardcodedAnswers ?? []);
+    setClaimedEmail(data.demo.claimedEmail ?? "");
     setStatus("Saved.");
   }
 
@@ -106,6 +109,17 @@ export function DashboardClient({ demoId }: { demoId?: string }) {
           <p className="mt-2 text-sm leading-6 text-[#4c625b]">
             Configure the widget once, copy the snippet, and send it to the customer&apos;s website team.
           </p>
+          <div className="mt-5">
+            <Field
+              label="Customer owner email"
+              value={claimedEmail}
+              onChange={setClaimedEmail}
+              placeholder="director@parkdistrict.org"
+            />
+            <p className="mt-2 text-xs font-semibold leading-5 text-[#4c625b]">
+              This lets the customer sign in with their email and open their bot dashboard.
+            </p>
+          </div>
           <button onClick={save} className="focus-ring mt-5 min-h-11 rounded-md bg-[#0b8f4d] px-5 font-bold text-white hover:bg-[#076f3d]">
             Save setup
           </button>

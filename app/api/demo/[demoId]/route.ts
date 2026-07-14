@@ -19,7 +19,7 @@ export async function PATCH(request: Request, { params }: { params: { demoId: st
     const demo = await getDemo(params.demoId);
     if (!demo) return NextResponse.json({ error: "Demo not found." }, { status: 404 });
 
-    const body = (await request.json()) as Partial<Pick<DemoRecord, "widgetConfig" | "hardcodedAnswers">>;
+    const body = (await request.json()) as Partial<Pick<DemoRecord, "widgetConfig" | "hardcodedAnswers" | "claimedEmail">>;
     const patch: Partial<DemoRecord> = {};
 
     if (body.widgetConfig) {
@@ -48,6 +48,15 @@ export async function PATCH(request: Request, { params }: { params: { demoId: st
         }))
         .filter((item) => item.trigger && item.answer)
         .slice(0, 50);
+    }
+
+    if (body.claimedEmail !== undefined) {
+      const claimedEmail = body.claimedEmail.trim().toLowerCase();
+      if (claimedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(claimedEmail)) {
+        return NextResponse.json({ error: "Owner email must be a valid email address." }, { status: 400 });
+      }
+      patch.claimedEmail = claimedEmail || undefined;
+      if (claimedEmail && demo.status === "ready") patch.status = "claimed";
     }
 
     const updated = await updateDemo(params.demoId, patch);

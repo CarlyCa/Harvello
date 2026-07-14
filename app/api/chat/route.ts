@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { answerQuestion } from "@/lib/chat";
-import { getDemo, getDemoByOrganizationSlug, incrementChatCount } from "@/lib/demo-store";
+import { getDemo, getDemoByOrganizationSlug, incrementChatCount, recordChatEvent } from "@/lib/demo-store";
 
 const MAX_DEMO_MESSAGES = 5;
 
@@ -32,10 +32,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const mode = body.mode ?? "demo";
     const result = await answerQuestion(demo, question);
+    void recordChatEvent({
+      demoId: demo.id,
+      question,
+      mode,
+      confidence: result.confidence,
+      citationsCount: result.citations.length
+    });
     return NextResponse.json({
       ...result,
-      remainingMessages: (body.mode ?? "demo") === "demo" ? Math.max(0, MAX_DEMO_MESSAGES - 1) : undefined
+      remainingMessages: mode === "demo" ? Math.max(0, MAX_DEMO_MESSAGES - 1) : undefined
     });
   } catch {
     return NextResponse.json({ error: "Unable to answer that question right now." }, { status: 500 });
