@@ -50,10 +50,21 @@ export function generateSuggestedQuestions(texts: string[]) {
 
 export function inferOrganizationName(hostname: string, title?: string) {
   const titleName = title?.split(/[|-]/)[0]?.trim();
-  if (titleName && titleName.length > 3 && titleName.length < 80) return titleName;
-  return hostname
+  if (titleName && titleName.length > 3 && titleName.length < 80) return dedupeRepeatedName(titleName);
+  return dedupeRepeatedName(hostname
     .replace(/^www\./, "")
     .split(".")[0]
     .replace(/-/g, " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+    .replace(/\b\w/g, (letter) => letter.toUpperCase()));
+}
+
+export function dedupeRepeatedName(value: string) {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  const words = normalized.split(" ");
+  if (words.length < 2 || words.length % 2 !== 0) return normalized;
+
+  const midpoint = words.length / 2;
+  const first = words.slice(0, midpoint).join(" ");
+  const second = words.slice(midpoint).join(" ");
+  return first.toLowerCase() === second.toLowerCase() ? first : normalized;
 }
