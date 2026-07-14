@@ -308,69 +308,13 @@ function WidgetDemoExperience({
         </a>
       </section>
 
-      <section className="relative min-h-[680px] overflow-hidden rounded-[28px] border border-[#dce4dd] bg-white shadow-soft">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="border-b border-[#dce4dd] bg-[#eef5ef] px-4 py-3">
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-[#d96a5c]" />
-              <span className="h-3 w-3 rounded-full bg-[#d9ad45]" />
-              <span className="h-3 w-3 rounded-full bg-[#6f9f80]" />
-              <div className="ml-3 flex-1 rounded-md bg-white px-4 py-2 text-sm font-bold text-[#66756f]">{demo.domain}</div>
-            </div>
-          </div>
-
-          <div className="bg-[#e85145] px-6 py-3 text-sm font-black text-white">Weather updates: indoor programs running today</div>
-          <div className="bg-[#f4c84f] px-6 py-3 text-sm font-black text-[#172421]">Lakefront pool will close early Friday for scheduled maintenance</div>
-
-          <header className="border-b border-[#dce4dd] bg-white px-6 py-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="grid h-14 w-14 place-items-center rounded-full bg-[#0b8f4d] text-lg font-black text-white">
-                  {demo.organizationName.slice(0, 2).toUpperCase()}
-                </div>
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0b8f4d]">Park District Website</p>
-                  <h2 className="text-2xl font-black leading-tight text-[#073f32]">{demo.organizationName}</h2>
-                </div>
-              </div>
-              <a href={claimHref} className="rounded-md bg-[#0b8f4d] px-4 py-2 text-sm font-bold text-white">
-                Claim this assistant
-              </a>
-            </div>
-          </header>
-
-          <div className="grid h-[calc(100%-190px)] lg:grid-cols-[1fr_260px]">
-            <main className="space-y-5 bg-white p-6">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0b8f4d]">Summer 2026</p>
-              <h3 className="max-w-xl text-4xl font-black leading-tight text-[#073f32]">Programs, events, and park information in one place.</h3>
-              <p className="max-w-xl text-base leading-7 text-[#4c625b]">
-                Residents browse as usual. Harvello stays available in the corner to answer questions from indexed website pages.
-              </p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {[
-                  ["Upcoming events", "Concerts, clean-ups, registration dates, and community activities."],
-                  ["Programs", "Classes, camps, lessons, and seasonal registration information."],
-                  ["Facilities", "Pools, parks, courts, rentals, and public amenities."],
-                  ["Resident help", "Answers grounded in the public pages Harvello indexed."]
-                ].map(([title, detail]) => (
-                  <div key={title} className="rounded-lg border border-[#dce4dd] bg-[#fbfcf8] p-4">
-                    <p className="font-black text-[#073f32]">{title}</p>
-                    <p className="mt-2 text-sm leading-6 text-[#4c625b]">{detail}</p>
-                  </div>
-                ))}
-              </div>
-            </main>
-            <aside className="hidden border-l border-[#dce4dd] bg-[#f5fbf4] p-6 lg:block">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#6b7b75]">Generated demo</p>
-              <div className="mt-5 grid grid-cols-2 gap-3">
-                <Metric label="Webpages indexed" value={demo.pagesIndexed} />
-                <Metric label="PDFs indexed" value={demo.pdfsIndexed} />
-              </div>
-              <p className="mt-5 rounded-lg bg-white p-4 text-sm font-semibold leading-6 text-[#4c625b]">
-                Tech lift: paste one script tag. Harvello handles setup, configuration, and source updates.
-              </p>
-            </aside>
-          </div>
+      <section className="relative min-h-[680px] overflow-hidden rounded-[28px] border border-[#dce4dd] bg-[radial-gradient(circle_at_76%_18%,#dcefe0_0%,rgba(220,239,224,0)_34%),linear-gradient(180deg,#ffffff_0%,#f5fbf4_100%)] shadow-soft">
+        <div className="absolute left-6 top-6 max-w-sm">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0b8f4d]">Widget preview</p>
+          <h2 className="mt-2 text-3xl font-black leading-tight text-[#073f32]">The assistant residents will see.</h2>
+          <p className="mt-3 text-sm leading-6 text-[#4c625b]">
+            This is the embeddable Harvello widget. Your customer&apos;s web team places it with one script tag.
+          </p>
         </div>
 
         {widgetOpen ? (
