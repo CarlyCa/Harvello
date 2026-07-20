@@ -15,9 +15,6 @@ export default function HomePage() {
             <a href="/signin" className="hidden text-sm font-semibold text-[#073f32] hover:text-[#0d8c4d] sm:inline">
               Sign in
             </a>
-            <a href="/demo" className="rounded-md bg-[#0b8f4d] px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#076f3d]">
-              Request a demo
-            </a>
           </div>
         </nav>
 
@@ -25,24 +22,18 @@ export default function HomePage() {
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-[#e8f4e9] px-4 py-2 text-sm font-bold text-[#07513f]">
               <span className="h-2.5 w-2.5 rounded-full bg-[#0b8f4d]" />
-              The AI Digital Front Desk for local government
+              The AI Digital Front Desk for any website
             </div>
             <h1 className="mt-8 text-5xl font-black leading-[1.08] tracking-normal text-[#073f32] md:text-6xl">
               Answer every question.
-              <span className="block text-[#0b8f4d]">Strengthen every community.</span>
+              <span className="block text-[#0b8f4d]">Help every visitor.</span>
             </h1>
             <p className="mt-7 max-w-xl text-lg leading-8 text-[#31584f]">
-              Harvello helps park districts answer resident questions 24/7. Your tech team only adds one small website snippet, and we handle the assistant setup.
+              Harvello helps organizations answer website visitor questions 24/7. Your tech team only adds one small website snippet, and we handle the assistant setup.
             </p>
 
             <div className="mt-8 max-w-xl">
               <UrlDemoForm />
-            </div>
-
-            <div className="mt-6 flex flex-wrap items-center gap-5">
-              <a href="/demo" className="rounded-md bg-[#0b8f4d] px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#076f3d]">
-                Request a demo -&gt;
-              </a>
             </div>
 
             <div className="mt-10 space-y-2 text-sm font-medium text-[#31584f]">
@@ -57,16 +48,16 @@ export default function HomePage() {
 
       <section className="bg-[#fbfbf6] px-6 py-16">
         <div className="mx-auto max-w-7xl text-center">
-          <h2 className="text-3xl font-black text-[#073f32]">One platform. Every resident interaction.</h2>
+          <h2 className="text-3xl font-black text-[#073f32]">One platform. Every website interaction.</h2>
           <p className="mx-auto mt-4 max-w-3xl text-base leading-7 text-[#5b6f69]">
-            Harvello combines AI, public website knowledge, and human-centered design to deliver better experiences for residents and staff.
+            Harvello combines AI, public website knowledge, and human-centered design to deliver better experiences for customers, visitors, and teams.
           </p>
         </div>
         <div className="mx-auto mt-10 grid max-w-7xl gap-4 md:grid-cols-4">
           {[
             ["AI Assistant", "Instant answers sourced from your website, documents, and approved content.", "chat"],
-            ["Insights", "Understand what residents need with analytics and unanswered-question trends.", "chart"],
-            ["Smart Search", "Help residents find accurate program, facility, and policy information faster.", "search"],
+            ["Insights", "Understand what visitors need with analytics and unanswered-question trends.", "chart"],
+            ["Smart Search", "Help visitors find accurate product, service, policy, and support information faster.", "search"],
             ["Easy to Integrate", "Your website team pastes one small snippet. We provide the code, configure the assistant, and handle the rest.", "code"]
           ].map(([title, body, icon]) => (
             <div key={title} className="rounded-lg border border-[#dce4dd] bg-white p-7 shadow-sm">
@@ -100,13 +91,10 @@ export default function HomePage() {
             <div className="flex items-center gap-4">
               <HarvelloLogo markOnly className="rounded-full bg-[#e8f4e9] p-3" />
               <div>
-                <h3 className="text-xl font-black">Ready to elevate resident experience?</h3>
+                <h3 className="text-xl font-black">Ready to improve your website experience?</h3>
                 <p className="mt-1 text-sm text-[#4c625b]">$99/month. One small snippet to add to your website.</p>
               </div>
             </div>
-            <a href="/demo" className="rounded-md bg-[#0b8f4d] px-6 py-3 text-center text-sm font-bold text-white hover:bg-[#076f3d]">
-              Request a demo -&gt;
-            </a>
           </div>
         </div>
       </section>
@@ -125,16 +113,16 @@ function HeroProductVisual() {
               <p className="font-black text-[#073f32]">Harvello Assistant</p>
             </div>
             <div className="mt-6 ml-auto max-w-[78%] rounded-lg bg-[#e8f4e9] p-4 text-sm leading-6 text-[#073f32]">
-              What are the hours of Riverdale Community Center?
+              Do you offer same-day appointments?
             </div>
             <div className="mt-4 flex gap-3">
               <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#0b8f4d] text-sm font-black text-white">H</div>
               <div className="rounded-lg border border-[#eef2ee] bg-white p-4 text-sm leading-6 text-[#073f32] shadow-sm">
-                Riverdale Community Center is open Monday-Friday from 6:00 AM to 9:00 PM, and Saturday-Sunday from 8:00 AM to 6:00 PM.
+                Same-day appointments are available Monday through Friday when openings remain. Book online or call before noon for the best availability.
                 <div className="mt-4 border-t border-[#dce4dd] pt-3 text-xs font-bold text-[#0b6f43]">
-                  Riverdale Community Center
+                  Services
                   <br />
-                  Operating Hours Policy
+                  Appointment Scheduling Policy
                 </div>
               </div>
             </div>
@@ -152,10 +140,10 @@ function HeroProductVisual() {
               </div>
               <div className="mt-5 space-y-3">
                 {[
-                  ["Facility hours", "82%"],
-                  ["Park reservations", "68%"],
-                  ["Event information", "54%"],
-                  ["Program registration", "48%"]
+                  ["Pricing", "82%"],
+                  ["Appointments", "68%"],
+                  ["Return policy", "54%"],
+                  ["Contact details", "48%"]
                 ].map(([label, width]) => (
                   <div key={label}>
                     <div className="flex justify-between text-xs font-bold text-[#4c625b]">
@@ -177,7 +165,7 @@ function HeroProductVisual() {
                   ["23,148", "Questions answered"],
                   ["94%", "Resolution rate"],
                   ["2,510", "Hours saved"],
-                  ["98%", "Resident satisfaction"]
+                  ["98%", "Visitor satisfaction"]
                 ].map(([value, label]) => (
                   <div key={label} className="rounded-md border border-[#e2e8e2] p-3">
                     <p className="text-lg font-black text-[#073f32]">{value}</p>

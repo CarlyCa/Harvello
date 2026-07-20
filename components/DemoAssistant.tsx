@@ -113,7 +113,7 @@ export function DemoAssistant({
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0b8f4d]">Generated demo</p>
           <h1 className="mt-2 text-3xl font-black tracking-normal text-[#073f32]">{demo.organizationName}</h1>
           <p className="mt-3 text-sm leading-6 text-[#4c625b]">
-            This assistant was created from public website content. Try resident questions and review the source links returned with each answer.
+            This assistant was created from public website content. Try visitor questions and review the source links returned with each answer.
           </p>
           <div className="mt-4 grid grid-cols-2 gap-3">
             <Metric label="Webpages indexed" value={demo.pagesIndexed} />
@@ -141,7 +141,7 @@ export function DemoAssistant({
         {mode === "demo" ? (
           <div className="rounded-[24px] border border-[#dce4dd] bg-white p-5 shadow-sm">
             <h2 className="text-lg font-black text-[#073f32]">Make this official</h2>
-            <p className="mt-2 text-sm leading-6 text-[#4c625b]">
+              <p className="mt-2 text-sm leading-6 text-[#4c625b]">
               Email us to claim this assistant for $99/month. We will confirm ownership, review sources with you, and send the one small snippet your website team can paste into your site.
             </p>
             <div className="mt-4 rounded-lg bg-[#f5fbf4] p-3 text-sm font-bold leading-6 text-[#073f32]">
@@ -159,12 +159,12 @@ export function DemoAssistant({
 
       <section className="flex min-h-[560px] flex-col overflow-hidden rounded-[28px] border border-[#dce4dd] bg-white shadow-soft lg:min-h-0">
         <div className="border-b border-[#dce4dd] bg-[#073f32] p-5 text-white">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#bde8c7]">Try the resident assistant</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#bde8c7]">Try the website assistant</p>
           <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="text-3xl font-black tracking-normal">Ask a question from the park website</h2>
+              <h2 className="text-3xl font-black tracking-normal">Ask a question from this website</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-white/78">
-                Type a resident question or use one of the examples. Harvello answers from the indexed public pages and shows its sources.
+                Type a visitor question or use one of the examples. Harvello answers from the indexed public pages and shows its sources.
               </p>
             </div>
             <span className="shrink-0 rounded-full bg-white/12 px-3 py-1 text-xs font-bold text-white/85">
@@ -175,9 +175,9 @@ export function DemoAssistant({
         <div className="flex-1 space-y-4 overflow-auto bg-[#fbfbf6] p-5">
           {messages.length === 0 ? (
             <div className="rounded-2xl border border-[#dce4dd] bg-white p-5">
-              <p className="font-black text-[#073f32]">Start with a real resident question</p>
+              <p className="font-black text-[#073f32]">Start with a real visitor question</p>
               <p className="mt-2 text-sm leading-6 text-[#4c625b]">
-                Good examples are hours, registration, events, rentals, weather policies, fees, or contact details.
+                Good examples are pricing, appointments, returns, services, documentation, office hours, or contact details.
               </p>
               <div className="mt-4 grid gap-2 sm:grid-cols-3">
                 {visiblePrompts.map((prompt) => (
@@ -229,7 +229,7 @@ export function DemoAssistant({
           <input
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
-            placeholder="Example: What time are the kids concerts?"
+            placeholder="Example: Do you offer same-day appointments?"
             className="focus-ring min-h-12 flex-1 rounded-md border border-[#dce4dd] px-3 text-[#073f32] placeholder:text-[#7b8b86]"
           />
           <button className="focus-ring rounded-md bg-[#0b8f4d] px-5 font-bold text-white hover:bg-[#076f3d]">Ask</button>
@@ -275,7 +275,7 @@ function WidgetDemoExperience({
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0b8f4d]">Generated demo</p>
         <h1 className="mt-3 text-4xl font-black leading-tight text-[#073f32]">{demo.organizationName}</h1>
         <p className="mt-4 text-base leading-7 text-[#4c625b]">
-          This assistant was generated from public website content. It can answer resident questions, cite source pages, and be installed on the organization website with one script tag.
+          This assistant was generated from public website content. It can answer visitor questions, cite source pages, and be installed on the organization website with one script tag.
         </p>
 
         <div className="mt-6 grid grid-cols-2 gap-3">
@@ -311,7 +311,7 @@ function WidgetDemoExperience({
       <section className="flex min-h-[680px] flex-col overflow-hidden rounded-[28px] border border-[#dce4dd] bg-[radial-gradient(circle_at_76%_18%,#dcefe0_0%,rgba(220,239,224,0)_34%),linear-gradient(180deg,#ffffff_0%,#f5fbf4_100%)] p-6 shadow-soft">
         <div className="max-w-2xl">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0b8f4d]">Widget preview</p>
-          <h2 className="mt-2 text-2xl font-black leading-tight text-[#073f32]">The assistant residents will see.</h2>
+          <h2 className="mt-2 text-2xl font-black leading-tight text-[#073f32]">The assistant visitors will see.</h2>
           <p className="mt-2 text-sm leading-6 text-[#4c625b]">
             This is the embeddable Harvello widget. Your customer&apos;s web team places it with one script tag.
           </p>
@@ -337,7 +337,7 @@ function WidgetDemoExperience({
           <div className="min-h-0 flex-1 space-y-4 overflow-auto bg-[#fbfbf6] p-5">
             {messages.length === 0 ? (
               <div className="rounded-xl border border-[#dce4dd] bg-white p-5">
-                <p className="text-lg font-black text-[#073f32]">Try a resident question</p>
+                <p className="text-lg font-black text-[#073f32]">Try a visitor question</p>
                 <div className="mt-4 space-y-3">
                   {visiblePrompts.map((prompt) => (
                     <button
@@ -384,7 +384,7 @@ function WidgetDemoExperience({
             <input
               value={question}
               onChange={(event) => setQuestion(event.target.value)}
-              placeholder="Example: What time are the kids concerts?"
+              placeholder="Example: Do you offer same-day appointments?"
               className="focus-ring min-h-12 flex-1 rounded-md border border-[#dce4dd] px-4 text-base text-[#073f32] placeholder:text-[#7b8b86]"
             />
             <button className="focus-ring rounded-md bg-[#0b8f4d] px-5 text-base font-bold text-white hover:bg-[#076f3d]">Ask</button>

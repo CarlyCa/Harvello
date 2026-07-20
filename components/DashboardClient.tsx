@@ -114,7 +114,7 @@ export function DashboardClient({ demoId }: { demoId?: string }) {
               label="Customer owner email"
               value={claimedEmail}
               onChange={setClaimedEmail}
-              placeholder="director@parkdistrict.org"
+              placeholder="owner@company.com"
             />
             <p className="mt-2 text-xs font-semibold leading-5 text-[#4c625b]">
               This lets the customer sign in with their email and open their bot dashboard.
@@ -186,7 +186,7 @@ export function DashboardClient({ demoId }: { demoId?: string }) {
           <div className="mt-5 space-y-4">
             {hardcodedAnswers.length ? null : (
               <div className="rounded-lg bg-[#f5fbf4] p-4 text-sm leading-6 text-[#4c625b]">
-                No hardcoded answers yet. Add one for questions like refund policy, emergency closures, or registration edge cases.
+                No hardcoded answers yet. Add one for questions like refund rules, service availability, billing details, or other policy edge cases.
               </div>
             )}
             {hardcodedAnswers.map((item) => (

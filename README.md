@@ -1,6 +1,6 @@
 # Harvello
 
-Self-serve SaaS MVP for park districts: enter a public website, generate a temporary AI Digital Front Desk, test it, then claim and customize it.
+Self-serve SaaS MVP for any organization: enter a public website, generate a temporary AI Digital Front Desk, test it, then claim and customize it.
 
 ## Run locally
 

@@ -48,7 +48,7 @@ export function SignInForm() {
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           type="email"
-          placeholder="you@parkdistrict.org"
+          placeholder="you@company.com"
           className="focus-ring mt-2 min-h-12 w-full rounded-md border border-[#dce4dd] bg-white px-4 text-sm text-[#073f32]"
         />
       </label>

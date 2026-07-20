@@ -6,28 +6,36 @@ import { inferOrganizationName } from "./text";
 import type { DemoRecord, IndexedSource } from "./types";
 import { assertPublicWebsite, normalizeWebsiteUrl } from "./url";
 
+const DEMO_TOTAL_BUDGET_MS = 170_000;
+const DEMO_PROCESSING_RESERVE_MS = 35_000;
+const DEMO_MAX_PAGES = 180;
+const DEMO_MAX_PDFS = 25;
+const DEMO_MAX_CHUNKS = 900;
+
 const fallbackSources: IndexedSource[] = [
   {
-    id: "src_demo_programs",
-    url: "https://example.org/programs",
-    title: "Programs and Registration",
-    description: "Sample park district program information",
+    id: "src_demo_services",
+    url: "https://example.org/services",
+    title: "Services and Appointments",
+    description: "Sample service information",
     type: "webpage",
     text:
-      "The park district offers seasonal youth programs, adult fitness classes, camps, aquatics, and community events. Residents can register online through the program catalog. Facility rentals are available for rooms, picnic shelters, fields, and special events. Contact the park district office for current availability and approved rental rules."
+      "The organization offers consultations, project support, maintenance plans, and online appointments. Visitors can book available time slots through the website, request a quote, or contact the team for help choosing the right service. Same-day appointments may be available when openings remain."
   },
   {
-    id: "src_demo_facilities",
-    url: "https://example.org/facilities",
-    title: "Facilities and Parks",
-    description: "Sample facility information",
+    id: "src_demo_policies",
+    url: "https://example.org/support",
+    title: "Support and Policies",
+    description: "Sample support information",
     type: "webpage",
     text:
-      "Parks include playgrounds, walking paths, athletic fields, pools, and picnic areas. Some amenities have seasonal hours and may require permits. Dogs, sports leagues, and special events may be subject to posted rules and local ordinances."
+      "Support is available by phone, email, and online form during posted business hours. Common questions include pricing, billing, returns, warranties, cancellations, and account updates. Refund and return policies depend on the service or product purchased and are listed on the website."
   }
 ];
 
 export async function createDemoFromUrl(input: string) {
+  const startedAt = Date.now();
+  const totalDeadlineAt = startedAt + DEMO_TOTAL_BUDGET_MS;
   const url = normalizeWebsiteUrl(input);
   await assertPublicWebsite(url);
   const domain = url.hostname.replace(/^www\./, "");
@@ -59,12 +67,18 @@ export async function createDemoFromUrl(input: string) {
   await saveDemo(initial);
 
   try {
+    const crawlDeadlineAt = Math.min(totalDeadlineAt - DEMO_PROCESSING_RESERVE_MS, Date.now() + 140_000);
     const sources = await crawlWebsite(url, (message, progress) => {
       void updateDemo(demoId, { message, progress });
+    }, {
+      deadlineAt: crawlDeadlineAt,
+      maxPages: DEMO_MAX_PAGES,
+      maxPdfs: DEMO_MAX_PDFS,
+      maxCrawlMs: Math.max(30_000, crawlDeadlineAt - Date.now())
     });
     const usableSources = sources.length ? sources : fallbackSources.map((source) => ({ ...source, url: url.toString() }));
     await updateDemo(demoId, { status: "processing", message: "Building your digital front desk", progress: 76 });
-    const { chunks, categories, suggestedQuestions } = await ingestSources(usableSources);
+    const { chunks, categories, suggestedQuestions } = await ingestSources(usableSources, { maxChunks: DEMO_MAX_CHUNKS });
     const orgName = inferOrganizationName(url.hostname, usableSources[0]?.title);
     return (await updateDemo(demoId, {
       organizationName: orgName,
@@ -76,7 +90,7 @@ export async function createDemoFromUrl(input: string) {
       categories,
       suggestedQuestions: suggestedQuestions.length
         ? suggestedQuestions
-        : ["What programs are currently listed for residents?", "How do I register?", "Can I rent a facility?"],
+        : ["What services are available?", "How do I book an appointment?", "What is the return policy?"],
       sources: usableSources,
       chunks
     }))!;

@@ -5,7 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Harvello",
-  description: "AI Digital Front Desk demos for park districts."
+  description: "AI Digital Front Desk demos for any website."
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

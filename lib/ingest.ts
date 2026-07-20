@@ -3,12 +3,18 @@ import { embedMany } from "./embeddings";
 import { createId } from "./ids";
 import { chunkText, generateSuggestedQuestions, inferCategories } from "./text";
 
-export async function ingestSources(sources: IndexedSource[]) {
+type IngestOptions = {
+  maxChunks?: number;
+};
+
+export async function ingestSources(sources: IndexedSource[], options: IngestOptions = {}) {
   const chunkInputs: Array<Omit<Chunk, "embedding">> = [];
+  const maxChunks = options.maxChunks ?? 900;
 
   for (const source of sources) {
     const chunks = chunkText(source.text);
-    chunks.forEach((content) => {
+    for (const content of chunks) {
+      if (chunkInputs.length >= maxChunks) break;
       chunkInputs.push({
         id: createId("chk"),
         sourceId: source.id,
@@ -16,7 +22,8 @@ export async function ingestSources(sources: IndexedSource[]) {
         sourceUrl: source.url,
         content
       });
-    });
+    }
+    if (chunkInputs.length >= maxChunks) break;
   }
 
   const embeddings = await embedMany(chunkInputs.map((chunk) => chunk.content));

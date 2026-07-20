@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 
     const body = (await request.json()) as { url?: string };
     if (!body.url || body.url.length > 300) {
-      return NextResponse.json({ error: "Enter a valid park district website URL." }, { status: 400 });
+      return NextResponse.json({ error: "Enter a valid website URL." }, { status: 400 });
     }
     const demo = await createDemoFromUrl(body.url);
     if (demo.status === "failed") return NextResponse.json({ error: demo.error, demo: toPublicDemo(demo) }, { status: 422 });

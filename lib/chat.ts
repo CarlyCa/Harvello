@@ -30,7 +30,7 @@ export async function answerQuestion(demo: DemoRecord, question: string): Promis
   if (!selected.length || confidence < 0.18) {
     return {
       answer:
-        "I could not find a reliable answer in the public website sources indexed for this demo. Please check the park district website directly.",
+        "I could not find a reliable answer in the public website sources indexed for this demo. Please check the official website directly.",
       citations,
       confidence: 0.2
     };
@@ -53,7 +53,7 @@ export async function answerQuestion(demo: DemoRecord, question: string): Promis
         {
           role: "system",
           content:
-            "You are a demo digital front desk for this park district. Answer only using the provided public website sources. Do not guess or infer unsupported facts. If the answer is not clearly supported, say you could not find a reliable answer and direct the user to the source website. Do not present yourself as officially approved during demo mode. Keep answers concise and readable. Do not include a Sources section, raw URLs, or markdown citation links in the answer because citations are displayed separately by the app."
+            "You are a demo digital front desk for this organization website. Answer only using the provided public website sources. Do not guess or infer unsupported facts. If the answer is not clearly supported, say you could not find a reliable answer and direct the user to the source website. Do not present yourself as officially approved during demo mode. Keep answers concise and readable. Do not include a Sources section, raw URLs, or markdown citation links in the answer because citations are displayed separately by the app."
         },
         {
           role: "user",

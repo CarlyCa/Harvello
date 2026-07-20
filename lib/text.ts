@@ -20,12 +20,12 @@ export function chunkText(text: string, maxWords = 180, overlapWords = 35) {
 export function inferCategories(texts: string[]) {
   const text = texts.join(" ").toLowerCase();
   const categories: Array<[string, string[]]> = [
-    ["Programs", ["program", "class", "camp", "lesson", "activity"]],
-    ["Facilities", ["facility", "rental", "room", "field", "gym", "pool"]],
-    ["Registration", ["register", "registration", "enroll", "sign up"]],
-    ["Parks", ["park", "trail", "playground", "preserve"]],
-    ["Events", ["event", "calendar", "concert", "festival"]],
-    ["Policies", ["policy", "rule", "permit", "refund", "resident"]]
+    ["Products", ["product", "catalog", "item", "shop", "store"]],
+    ["Services", ["service", "appointment", "booking", "consultation"]],
+    ["Pricing", ["price", "pricing", "cost", "quote", "fee"]],
+    ["Support", ["support", "help", "faq", "contact", "troubleshoot"]],
+    ["Events", ["event", "calendar", "webinar", "workshop"]],
+    ["Policies", ["policy", "return", "refund", "warranty", "terms"]]
   ];
   return categories.filter(([, terms]) => terms.some((term) => text.includes(term))).map(([name]) => name).slice(0, 5);
 }
@@ -33,16 +33,16 @@ export function inferCategories(texts: string[]) {
 export function generateSuggestedQuestions(texts: string[]) {
   const text = texts.join(" ").toLowerCase();
   const candidates = [
-    ["program", "What programs are currently listed for residents?"],
-    ["register", "How do I register for a program or class?"],
-    ["facility", "Can I rent a facility or room?"],
-    ["pool", "What pool information is available?"],
-    ["park", "What parks and amenities are listed?"],
-    ["permit", "How do permits work?"],
-    ["camp", "What camp information is available?"],
+    ["price", "What pricing information is available?"],
+    ["pricing", "What pricing information is available?"],
+    ["service", "What services are available?"],
+    ["appointment", "How do I book an appointment?"],
+    ["product", "What products are listed?"],
+    ["support", "How can I get support?"],
+    ["faq", "What frequently asked questions are answered?"],
     ["event", "What events are listed?"],
     ["refund", "What refund policy information is available?"],
-    ["contact", "How can I contact the park district?"]
+    ["contact", "How can I contact the organization?"]
   ];
   const generated = candidates.filter(([term]) => text.includes(term)).map(([, question]) => question);
   return generated.slice(0, 5);

@@ -14,7 +14,7 @@ export function UrlDemoForm({ compact = false }: { compact?: boolean }) {
     setError("");
     const trimmedUrl = url.trim();
     if (!trimmedUrl) {
-      setError("Enter a park district website URL.");
+      setError("Enter a website URL.");
       return;
     }
     setLoading(true);
@@ -27,9 +27,9 @@ export function UrlDemoForm({ compact = false }: { compact?: boolean }) {
         <input
           value={url}
           onChange={(event) => setUrl(event.target.value)}
-          placeholder="https://yourparkdistrict.org"
+          placeholder="https://yourwebsite.com"
           className="focus-ring min-h-12 flex-1 rounded-md border border-transparent px-4 text-base text-civic-ink placeholder:text-slate-500"
-          aria-label="Park district website URL"
+          aria-label="Website URL"
           required
         />
         <button

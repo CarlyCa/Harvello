@@ -10,7 +10,7 @@ const steps = [
   },
   {
     title: "Learning your public pages",
-    detail: "Finding programs, facilities, events, policies, and contact pages."
+    detail: "Finding products, services, policies, support, and contact pages."
   },
   {
     title: "Reading documents and PDFs",
@@ -22,7 +22,7 @@ const steps = [
   },
   {
     title: "Creating the assistant UI",
-    detail: "Preparing the resident-facing demo and example answer flow."
+    detail: "Preparing the visitor-facing demo and example answer flow."
   },
   {
     title: "Finishing your demo",
@@ -95,7 +95,7 @@ export function DemoGenerationFlow() {
           Building your Harvello demo.
         </h1>
         <p className="mt-5 max-w-xl text-lg leading-8 text-[#31584f]">
-          Harvello is reading the public website, organizing useful resident information, and preparing a working assistant experience.
+          Harvello is reading the public website, organizing useful visitor information, and preparing a working assistant experience.
         </p>
         <div className="mt-8 rounded-lg border border-[#dce4dd] bg-white p-5 shadow-sm">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#6a7b75]">Website</p>

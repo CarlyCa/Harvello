@@ -52,7 +52,7 @@ export function BotAnalytics({ demo }: { demo: DemoRecord }) {
               topTopics.map(([topic, count]) => <Bar key={topic} label={topic} value={count} max={topTopics[0][1]} />)
             ) : (
               <p className="rounded-lg bg-[#f5fbf4] p-4 text-sm leading-6 text-[#4c625b]">
-                Topics will appear after residents start asking questions.
+                Topics will appear after visitors start asking questions.
               </p>
             )}
           </div>
@@ -76,7 +76,7 @@ export function BotAnalytics({ demo }: { demo: DemoRecord }) {
             ))
           ) : (
             <p className="rounded-lg bg-[#f5fbf4] p-4 text-sm leading-6 text-[#4c625b]">
-              No resident questions have been logged for this assistant yet.
+              No visitor questions have been logged for this assistant yet.
             </p>
           )}
         </div>
@@ -112,12 +112,12 @@ function Bar({ label, value, max }: { label: string; value: number; max: number 
 function buildTopTopics(questions: string[]) {
   const topics = new Map<string, number>();
   const topicTerms: Array<[string, string[]]> = [
-    ["Registration", ["register", "registration", "sign up", "enroll"]],
-    ["Programs", ["program", "class", "camp", "lesson"]],
-    ["Events", ["event", "calendar", "concert"]],
-    ["Facilities", ["facility", "room", "rental", "rent"]],
-    ["Parks", ["park", "field", "court", "trail"]],
-    ["Pools", ["pool", "aquatic", "swim"]],
+    ["Pricing", ["price", "pricing", "cost", "fee", "quote"]],
+    ["Appointments", ["appointment", "booking", "schedule", "reservation"]],
+    ["Support", ["support", "help", "issue", "troubleshoot", "problem"]],
+    ["Policies", ["policy", "return", "refund", "warranty", "terms"]],
+    ["Events", ["event", "calendar", "webinar", "workshop"]],
+    ["Services", ["service", "product", "feature", "plan"]],
     ["Hours", ["hour", "open", "close"]],
     ["Contact", ["contact", "phone", "email"]]
   ];

@@ -5,32 +5,47 @@ import { cleanText } from "./text";
 import type { IndexedSource } from "./types";
 import { createId } from "./ids";
 
-const MAX_PAGES = 125;
-const MAX_PDFS = 20;
+const MAX_PAGES = 180;
+const MAX_PDFS = 25;
 const MAX_DEPTH = 4;
 const MAX_PDF_BYTES = 6 * 1024 * 1024;
-const MAX_CRAWL_MS = 90_000;
-const FETCH_TIMEOUT_MS = 10_000;
-const MAX_SITEMAP_URLS = 200;
+const MAX_CRAWL_MS = 140_000;
+const FETCH_TIMEOUT_MS = 8_000;
+const MAX_SITEMAP_URLS = 400;
 
 type CrawlProgress = (message: string, progress: number) => void;
+type CrawlOptions = {
+  deadlineAt?: number;
+  maxPages?: number;
+  maxPdfs?: number;
+  maxCrawlMs?: number;
+};
 
-export async function crawlWebsite(root: URL, onProgress?: CrawlProgress) {
+export async function crawlWebsite(root: URL, onProgress?: CrawlProgress, options: CrawlOptions = {}) {
   const visited = new Set<string>();
+  const queued = new Set<string>([canonicalUrl(root)]);
   const queue: Array<{ url: URL; depth: number }> = [{ url: root, depth: 0 }];
   const sources: IndexedSource[] = [];
   let pdfCount = 0;
   const startedAt = Date.now();
+  const maxPages = options.maxPages ?? MAX_PAGES;
+  const maxPdfs = options.maxPdfs ?? MAX_PDFS;
+  const maxCrawlMs = options.maxCrawlMs ?? MAX_CRAWL_MS;
+  const shouldStop = () => Date.now() - startedAt > maxCrawlMs || (options.deadlineAt !== undefined && Date.now() > options.deadlineAt);
   const allowedByRobots = await loadRobots(root);
 
   onProgress?.("Finding public pages", 18);
   const sitemapUrls = await discoverSitemapUrls(root, allowedByRobots);
   for (const sitemapUrl of sitemapUrls) {
-    queue.push({ url: sitemapUrl, depth: 1 });
+    const sitemapKey = canonicalUrl(sitemapUrl);
+    if (!queued.has(sitemapKey)) {
+      queued.add(sitemapKey);
+      queue.push({ url: sitemapUrl, depth: 1 });
+    }
   }
 
-  while (queue.length > 0 && sources.filter((source) => source.type === "webpage").length < MAX_PAGES) {
-    if (Date.now() - startedAt > MAX_CRAWL_MS) break;
+  while (queue.length > 0 && sources.filter((source) => source.type === "webpage").length < maxPages) {
+    if (shouldStop()) break;
     const item = queue.shift();
     if (!item || item.depth > MAX_DEPTH) continue;
     const normalized = canonicalUrl(item.url);
@@ -42,7 +57,7 @@ export async function crawlWebsite(root: URL, onProgress?: CrawlProgress) {
     const contentType = response.headers.get("content-type") ?? "";
 
     if (contentType.includes("application/pdf") || item.url.pathname.toLowerCase().endsWith(".pdf")) {
-      if (pdfCount >= MAX_PDFS) continue;
+      if (pdfCount >= maxPdfs || shouldStop()) continue;
       const source = await extractPdf(item.url, response);
       if (source) {
         sources.push(source);
@@ -61,14 +76,17 @@ export async function crawlWebsite(root: URL, onProgress?: CrawlProgress) {
     }
 
     if (item.depth < MAX_DEPTH) {
-      for (const link of links) {
+      for (const link of links.sort((a, b) => pagePriority(a) - pagePriority(b))) {
         const linkKey = canonicalUrl(link);
-        if (!visited.has(linkKey)) queue.push({ url: link, depth: item.depth + 1 });
+        if (!visited.has(linkKey) && !queued.has(linkKey)) {
+          queued.add(linkKey);
+          queue.push({ url: link, depth: item.depth + 1 });
+        }
       }
     }
   }
 
-  return sources.slice(0, MAX_PAGES + MAX_PDFS);
+  return sources.slice(0, maxPages + maxPdfs);
 }
 
 async function safeFetch(url: URL) {
@@ -87,10 +105,6 @@ async function safeFetch(url: URL) {
 
 function extractHtml(url: URL, html: string, root: URL) {
   const $ = cheerio.load(html);
-  $("script, style, noscript, svg, iframe, form, nav, footer, header").remove();
-  const title = cleanText($("title").first().text() || $("h1").first().text() || url.hostname);
-  const description = cleanText($('meta[name="description"]').attr("content") ?? "");
-  const text = cleanText($("main").text() || $("body").text());
   const links: URL[] = [];
 
   $("a[href]").each((_, element) => {
@@ -107,6 +121,11 @@ function extractHtml(url: URL, html: string, root: URL) {
       // Ignore malformed links.
     }
   });
+
+  $("script, style, noscript, svg, iframe, form, nav, footer, header").remove();
+  const title = cleanText($("title").first().text() || $("h1").first().text() || url.hostname);
+  const description = cleanText($('meta[name="description"]').attr("content") ?? "");
+  const text = cleanText($("main").text() || $("body").text());
 
   return {
     source: {

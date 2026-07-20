@@ -11,9 +11,9 @@ export default function SignInPage() {
         <div className="mt-12 grid gap-8 lg:grid-cols-[.85fr_1.15fr] lg:items-center">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0b8f4d]">Harvello portal</p>
-            <h2 className="mt-3 text-4xl font-black leading-tight text-[#073f32]">Review your assistant and resident analytics.</h2>
+            <h2 className="mt-3 text-4xl font-black leading-tight text-[#073f32]">Review your assistant and visitor analytics.</h2>
             <p className="mt-5 text-base leading-7 text-[#4c625b]">
-              Customers can see bot health, indexed content, recent resident questions, and basic usage trends.
+              Customers can see bot health, indexed content, recent visitor questions, and basic usage trends.
             </p>
           </div>
           <SignInForm />

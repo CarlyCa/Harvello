@@ -5,7 +5,7 @@ export default function DemoPage() {
   const progress = [
     "Connecting to your website",
     "Finding public pages",
-    "Reading program and facility information",
+    "Reading product and service information",
     "Processing PDFs",
     "Building your digital front desk",
     "Preparing suggested questions"
@@ -20,7 +20,7 @@ export default function DemoPage() {
         <section className="mt-14 rounded-lg border border-civic-line bg-white p-8 shadow-soft">
           <h1 className="text-4xl font-bold tracking-normal text-civic-ink">Create your Digital Front Desk demo</h1>
           <p className="mt-3 max-w-2xl text-lg leading-7 text-slate-700">
-            Enter a public park district website. Harvello will read public pages and prepare a resident assistant you can test right away.
+            Enter any public website. Harvello will read public pages and prepare a website assistant you can test right away.
           </p>
           <div className="mt-8">
             <UrlDemoForm compact />

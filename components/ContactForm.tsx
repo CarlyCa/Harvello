@@ -46,9 +46,9 @@ export function ContactForm() {
     <form onSubmit={submit} className="rounded-2xl bg-[#fbfbf6] p-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <ContactField label="Name" name="name" placeholder="Jane Smith" required />
-        <ContactField label="Email" name="email" placeholder="jane@parkdistrict.org" type="email" required />
+        <ContactField label="Email" name="email" placeholder="jane@company.com" type="email" required />
         <ContactField label="Phone" name="phone" placeholder="(847) 555-0100" type="tel" />
-        <ContactField label="Organization" name="organization" placeholder="Riverdale Park District" />
+        <ContactField label="Organization" name="organization" placeholder="Riverdale Studio" />
       </div>
       <label className="mt-4 block">
         <span className="text-sm font-bold text-[#073f32]">Message</span>
