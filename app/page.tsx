@@ -113,16 +113,16 @@ function HeroProductVisual() {
               <p className="font-black text-[#073f32]">Harvello Assistant</p>
             </div>
             <div className="mt-6 ml-auto max-w-[78%] rounded-lg bg-[#e8f4e9] p-4 text-sm leading-6 text-[#073f32]">
-              Do you offer same-day appointments?
+              What are the hours of Riverdale Community Center?
             </div>
             <div className="mt-4 flex gap-3">
               <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#0b8f4d] text-sm font-black text-white">H</div>
               <div className="rounded-lg border border-[#eef2ee] bg-white p-4 text-sm leading-6 text-[#073f32] shadow-sm">
-                Same-day appointments are available Monday through Friday when openings remain. Book online or call before noon for the best availability.
+                Riverdale Community Center is open Monday-Friday from 6:00 AM to 9:00 PM, and Saturday-Sunday from 8:00 AM to 6:00 PM.
                 <div className="mt-4 border-t border-[#dce4dd] pt-3 text-xs font-bold text-[#0b6f43]">
-                  Services
+                  Riverdale Community Center
                   <br />
-                  Appointment Scheduling Policy
+                  Operating Hours Policy
                 </div>
               </div>
             </div>
@@ -140,10 +140,10 @@ function HeroProductVisual() {
               </div>
               <div className="mt-5 space-y-3">
                 {[
-                  ["Pricing", "82%"],
-                  ["Appointments", "68%"],
-                  ["Return policy", "54%"],
-                  ["Contact details", "48%"]
+                  ["Facility hours", "82%"],
+                  ["Park reservations", "68%"],
+                  ["Event information", "54%"],
+                  ["Program registration", "48%"]
                 ].map(([label, width]) => (
                   <div key={label}>
                     <div className="flex justify-between text-xs font-bold text-[#4c625b]">
@@ -165,7 +165,7 @@ function HeroProductVisual() {
                   ["23,148", "Questions answered"],
                   ["94%", "Resolution rate"],
                   ["2,510", "Hours saved"],
-                  ["98%", "Visitor satisfaction"]
+                  ["98%", "Resident satisfaction"]
                 ].map(([value, label]) => (
                   <div key={label} className="rounded-md border border-[#e2e8e2] p-3">
                     <p className="text-lg font-black text-[#073f32]">{value}</p>
