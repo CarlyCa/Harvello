@@ -1,24 +1,21 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 export function UrlDemoForm({ compact = false }: { compact?: boolean }) {
-  const router = useRouter();
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function submit(event: FormEvent) {
-    event.preventDefault();
+  function submit(event: FormEvent) {
     setError("");
     const trimmedUrl = url.trim();
     if (!trimmedUrl) {
+      event.preventDefault();
       setError("Enter a website URL.");
       return;
     }
     setLoading(true);
-    router.push(`/demo/generate?url=${encodeURIComponent(trimmedUrl)}`);
   }
 
   return (
