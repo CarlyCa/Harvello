@@ -49,12 +49,28 @@ export function generateSuggestedQuestions(texts: string[]) {
 }
 
 export function inferOrganizationName(hostname: string, title?: string) {
-  const titleName = title?.split(/[|-]/)[0]?.trim();
+  const titleName = cleanOrganizationName(title?.split(/[|-]/)[0] ?? "");
   if (titleName && titleName.length > 3 && titleName.length < 80) return dedupeRepeatedName(titleName);
+  return organizationNameFromHostname(hostname);
+}
+
+export function cleanOrganizationName(value: string, hostname?: string) {
+  const cleaned = dedupeRepeatedName(cleanText(value)
+    .replace(/\b(area guides?|visitor guides?|local guides?|travel guides?)\b/gi, "")
+    .replace(/\b(official website|homepage|home page)\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim());
+
+  if (cleaned && cleaned.length > 3) return cleaned;
+  return hostname ? organizationNameFromHostname(hostname) : cleaned;
+}
+
+function organizationNameFromHostname(hostname: string) {
   return dedupeRepeatedName(hostname
     .replace(/^www\./, "")
     .split(".")[0]
     .replace(/-/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
     .replace(/\b\w/g, (letter) => letter.toUpperCase()));
 }
 

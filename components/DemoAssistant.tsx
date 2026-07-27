@@ -110,10 +110,10 @@ export function DemoAssistant({
     <div className="grid gap-5 lg:h-[calc(100vh-105px)] lg:grid-cols-[.7fr_1.3fr] lg:items-stretch">
       <section className="flex min-h-0 flex-col gap-4">
         <div className="rounded-[24px] border border-[#dce4dd] bg-white p-5 shadow-sm">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0b8f4d]">Generated demo</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0b8f4d]">Demo created for</p>
           <h1 className="mt-2 text-3xl font-black tracking-normal text-[#073f32]">{demo.organizationName}</h1>
           <p className="mt-3 text-sm leading-6 text-[#4c625b]">
-            This assistant was created from public website content. Try visitor questions and review the source links returned with each answer.
+            This assistant was created for {demo.organizationName} from public website content. Try visitor questions and review the source links returned with each answer.
           </p>
           <div className="mt-4 grid grid-cols-2 gap-3">
             <Metric label="Webpages indexed" value={demo.pagesIndexed} />
@@ -272,10 +272,10 @@ function WidgetDemoExperience({
   return (
     <div className="grid gap-6 lg:min-h-[calc(100vh-120px)] lg:grid-cols-[.9fr_1.1fr]">
       <section className="rounded-[28px] border border-[#dce4dd] bg-white p-6 shadow-soft">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0b8f4d]">Generated demo</p>
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0b8f4d]">Demo created for</p>
         <h1 className="mt-3 text-4xl font-black leading-tight text-[#073f32]">{demo.organizationName}</h1>
         <p className="mt-4 text-base leading-7 text-[#4c625b]">
-          This assistant was generated from public website content. It can answer visitor questions, cite source pages, and be installed on the organization website with one script tag.
+          This assistant was generated for {demo.organizationName} from public website content. It can answer visitor questions, cite source pages, and be installed on the organization website with one script tag.
         </p>
 
         <div className="mt-6 grid grid-cols-2 gap-3">

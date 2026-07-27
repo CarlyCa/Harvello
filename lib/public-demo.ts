@@ -1,10 +1,10 @@
 import type { DemoRecord } from "./types";
-import { dedupeRepeatedName } from "./text";
+import { cleanOrganizationName } from "./text";
 
 export function toPublicDemo(demo: DemoRecord) {
   return {
     ...demo,
-    organizationName: dedupeRepeatedName(demo.organizationName),
+    organizationName: cleanOrganizationName(demo.organizationName, demo.domain),
     sources: (demo.sources ?? []).map((source) => ({
       id: source.id,
       url: source.url,
