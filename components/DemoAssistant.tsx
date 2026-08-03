@@ -24,7 +24,8 @@ export function DemoAssistant({
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(true);
   const [answering, setAnswering] = useState(false);
-  const [widgetOpen, setWidgetOpen] = useState(true);
+  const [widgetOpen, setWidgetOpen] = useState(false);
+  const [autoOpenedWidget, setAutoOpenedWidget] = useState(false);
   const sessionId = useMemo(() => {
     if (typeof window === "undefined") return "server";
     const key = "harvello_session";
@@ -42,6 +43,15 @@ export function DemoAssistant({
       .catch(() => setDemo(null))
       .finally(() => setLoading(false));
   }, [demoId]);
+
+  useEffect(() => {
+    if (variant !== "widget" || loading || !demo || autoOpenedWidget) return;
+    const timer = window.setTimeout(() => {
+      setWidgetOpen(true);
+      setAutoOpenedWidget(true);
+    }, 900);
+    return () => window.clearTimeout(timer);
+  }, [autoOpenedWidget, demo, loading, variant]);
 
   async function ask(value = question) {
     const trimmed = value.trim();
@@ -83,6 +93,10 @@ export function DemoAssistant({
   }
 
   const visiblePrompts = demo.suggestedQuestions.slice(0, 3);
+  const exampleQuestion = visiblePrompts[0] ?? `What should I know about ${demo.organizationName}?`;
+  const categoryExamples = demo.categories.length
+    ? demo.categories.slice(0, 3).map((category) => category.toLowerCase()).join(", ")
+    : "the information on this website";
   const claimSubject = encodeURIComponent(`Claim Harvello assistant for ${demo.organizationName}`);
   const claimBody = encodeURIComponent(
     `Hi Harvello,\n\nWe are interested in this on our website.\n\nOrganization: ${demo.organizationName}\nWebsite: ${demo.websiteUrl}\nDemo ID: ${demo.id}\n\nPlease send next steps.`
@@ -97,6 +111,7 @@ export function DemoAssistant({
         question={question}
         answering={answering}
         visiblePrompts={visiblePrompts}
+        exampleQuestion={exampleQuestion}
         widgetOpen={widgetOpen}
         setWidgetOpen={setWidgetOpen}
         setQuestion={setQuestion}
@@ -177,7 +192,7 @@ export function DemoAssistant({
             <div className="rounded-2xl border border-[#dce4dd] bg-white p-5">
               <p className="font-black text-[#073f32]">Start with a real visitor question</p>
               <p className="mt-2 text-sm leading-6 text-[#4c625b]">
-                Good examples are pricing, appointments, returns, services, documentation, office hours, or contact details.
+                Good examples are questions about {categoryExamples}, or any public details from {demo.organizationName}&apos;s website.
               </p>
               <div className="mt-4 grid gap-2 sm:grid-cols-3">
                 {visiblePrompts.map((prompt) => (
@@ -229,7 +244,7 @@ export function DemoAssistant({
           <input
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
-            placeholder="Example: Do you offer same-day appointments?"
+            placeholder={`Example: ${exampleQuestion}`}
             className="focus-ring min-h-12 flex-1 rounded-md border border-[#dce4dd] px-3 text-[#073f32] placeholder:text-[#7b8b86]"
           />
           <button className="focus-ring rounded-md bg-[#0b8f4d] px-5 font-bold text-white hover:bg-[#076f3d]">Ask</button>
@@ -252,6 +267,7 @@ function WidgetDemoExperience({
   question,
   answering,
   visiblePrompts,
+  exampleQuestion,
   widgetOpen,
   setWidgetOpen,
   setQuestion,
@@ -263,6 +279,7 @@ function WidgetDemoExperience({
   question: string;
   answering: boolean;
   visiblePrompts: string[];
+  exampleQuestion: string;
   widgetOpen: boolean;
   setWidgetOpen: (open: boolean) => void;
   setQuestion: (question: string) => void;
@@ -308,7 +325,7 @@ function WidgetDemoExperience({
         </a>
       </section>
 
-      <section className="flex min-h-[680px] flex-col overflow-hidden rounded-[28px] border border-[#dce4dd] bg-[radial-gradient(circle_at_76%_18%,#dcefe0_0%,rgba(220,239,224,0)_34%),linear-gradient(180deg,#ffffff_0%,#f5fbf4_100%)] p-6 shadow-soft">
+      <section className="relative flex min-h-[680px] flex-col overflow-hidden rounded-[28px] border border-[#dce4dd] bg-[radial-gradient(circle_at_76%_18%,#dcefe0_0%,rgba(220,239,224,0)_34%),linear-gradient(180deg,#ffffff_0%,#f5fbf4_100%)] p-6 shadow-soft">
         <div className="max-w-2xl">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0b8f4d]">Widget preview</p>
           <h2 className="mt-2 text-2xl font-black leading-tight text-[#073f32]">The assistant visitors will see.</h2>
@@ -384,7 +401,7 @@ function WidgetDemoExperience({
             <input
               value={question}
               onChange={(event) => setQuestion(event.target.value)}
-              placeholder="Example: Do you offer same-day appointments?"
+              placeholder={`Example: ${exampleQuestion}`}
               className="focus-ring min-h-12 flex-1 rounded-md border border-[#dce4dd] px-4 text-base text-[#073f32] placeholder:text-[#7b8b86]"
             />
             <button className="focus-ring rounded-md bg-[#0b8f4d] px-5 text-base font-bold text-white hover:bg-[#076f3d]">Ask</button>
@@ -393,7 +410,7 @@ function WidgetDemoExperience({
         ) : (
           <button
             onClick={() => setWidgetOpen(true)}
-            className="focus-ring mt-auto self-end rounded-full bg-[#0b8f4d] px-6 py-4 text-sm font-black text-white shadow-soft hover:bg-[#076f3d]"
+            className="focus-ring absolute bottom-6 right-6 rounded-full bg-[#0b8f4d] px-6 py-4 text-sm font-black text-white shadow-soft hover:bg-[#076f3d]"
           >
             Ask Harvello
           </button>

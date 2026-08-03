@@ -5,7 +5,7 @@ let openai: OpenAI | null = null;
 
 function client() {
   if (!hasOpenAI || !env.OPENAI_API_KEY) return null;
-  openai ??= new OpenAI({ apiKey: env.OPENAI_API_KEY });
+  openai ??= new OpenAI({ apiKey: env.OPENAI_API_KEY, maxRetries: 1, timeout: 12_000 });
   return openai;
 }
 

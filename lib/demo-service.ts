@@ -6,11 +6,11 @@ import { inferOrganizationName } from "./text";
 import type { DemoRecord, IndexedSource } from "./types";
 import { assertPublicWebsite, normalizeWebsiteUrl } from "./url";
 
-const DEMO_TOTAL_BUDGET_MS = 170_000;
-const DEMO_PROCESSING_RESERVE_MS = 35_000;
-const DEMO_MAX_PAGES = 180;
-const DEMO_MAX_PDFS = 25;
-const DEMO_MAX_CHUNKS = 900;
+const DEMO_TOTAL_BUDGET_MS = 45_000;
+const DEMO_PROCESSING_RESERVE_MS = 12_000;
+const DEMO_MAX_PAGES = 36;
+const DEMO_MAX_PDFS = 4;
+const DEMO_MAX_CHUNKS = 160;
 
 const fallbackSources: IndexedSource[] = [
   {
@@ -40,7 +40,7 @@ export async function createDemoFromUrl(input: string) {
   await assertPublicWebsite(url);
   const domain = url.hostname.replace(/^www\./, "");
   const recent = await findRecentDemoByDomain(domain);
-  if (recent && recent.status === "ready" && recent.pagesIndexed >= 25) return recent;
+  if (recent && recent.status === "ready" && recent.pagesIndexed >= 8) return recent;
 
   const demoId = createId("demo");
   const organizationId = createId("org");
@@ -67,19 +67,20 @@ export async function createDemoFromUrl(input: string) {
   await saveDemo(initial);
 
   try {
-    const crawlDeadlineAt = Math.min(totalDeadlineAt - DEMO_PROCESSING_RESERVE_MS, Date.now() + 140_000);
+    const crawlDeadlineAt = Math.min(totalDeadlineAt - DEMO_PROCESSING_RESERVE_MS, Date.now() + 32_000);
     const sources = await crawlWebsite(url, (message, progress) => {
       void updateDemo(demoId, { message, progress });
     }, {
       deadlineAt: crawlDeadlineAt,
       maxPages: DEMO_MAX_PAGES,
       maxPdfs: DEMO_MAX_PDFS,
-      maxCrawlMs: Math.max(30_000, crawlDeadlineAt - Date.now())
+      maxCrawlMs: Math.max(8_000, crawlDeadlineAt - Date.now())
     });
     const usableSources = sources.length ? sources : fallbackSources.map((source) => ({ ...source, url: url.toString() }));
     await updateDemo(demoId, { status: "processing", message: "Building your digital front desk", progress: 76 });
     const { chunks, categories, suggestedQuestions } = await ingestSources(usableSources, { maxChunks: DEMO_MAX_CHUNKS });
     const orgName = inferOrganizationName(url.hostname, usableSources[0]?.title);
+    const prompts = buildSuggestedQuestions(orgName, categories, suggestedQuestions);
     return (await updateDemo(demoId, {
       organizationName: orgName,
       status: "ready",
@@ -88,9 +89,7 @@ export async function createDemoFromUrl(input: string) {
       pagesIndexed: usableSources.filter((source) => source.type === "webpage").length,
       pdfsIndexed: usableSources.filter((source) => source.type === "pdf").length,
       categories,
-      suggestedQuestions: suggestedQuestions.length
-        ? suggestedQuestions
-        : ["What services are available?", "How do I book an appointment?", "What is the return policy?"],
+      suggestedQuestions: prompts,
       sources: usableSources,
       chunks
     }))!;
@@ -102,4 +101,24 @@ export async function createDemoFromUrl(input: string) {
       error: error instanceof Error ? error.message : "Unknown crawl error"
     }))!;
   }
+}
+
+function buildSuggestedQuestions(orgName: string, categories: string[], generated: string[]) {
+  const categoryPrompts = categories.flatMap((category) => {
+    if (category === "Events") return [`What events are listed for ${orgName}?`];
+    if (category === "Products") return [`What products are listed by ${orgName}?`];
+    if (category === "Services") return [`What services does ${orgName} describe?`];
+    if (category === "Pricing") return [`What pricing or fee information is available for ${orgName}?`];
+    if (category === "Support") return [`How can visitors get help from ${orgName}?`];
+    if (category === "Policies") return [`What policies does ${orgName} publish?`];
+    return [];
+  });
+
+  return Array.from(new Set([
+    ...categoryPrompts,
+    ...generated,
+    `What information is available on ${orgName}'s website?`,
+    `How can I contact ${orgName}?`,
+    `What should visitors know about ${orgName}?`
+  ])).slice(0, 5);
 }

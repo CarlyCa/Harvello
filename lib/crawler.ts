@@ -5,13 +5,13 @@ import { cleanText } from "./text";
 import type { IndexedSource } from "./types";
 import { createId } from "./ids";
 
-const MAX_PAGES = 180;
-const MAX_PDFS = 25;
+const MAX_PAGES = 36;
+const MAX_PDFS = 4;
 const MAX_DEPTH = 4;
 const MAX_PDF_BYTES = 6 * 1024 * 1024;
-const MAX_CRAWL_MS = 140_000;
+const MAX_CRAWL_MS = 32_000;
 const FETCH_TIMEOUT_MS = 8_000;
-const MAX_SITEMAP_URLS = 400;
+const MAX_SITEMAP_URLS = 80;
 
 type CrawlProgress = (message: string, progress: number) => void;
 type CrawlOptions = {
@@ -35,7 +35,7 @@ export async function crawlWebsite(root: URL, onProgress?: CrawlProgress, option
   const allowedByRobots = await loadRobots(root);
 
   onProgress?.("Finding public pages", 18);
-  const sitemapUrls = await discoverSitemapUrls(root, allowedByRobots);
+  const sitemapUrls = shouldStop() ? [] : await discoverSitemapUrls(root, allowedByRobots, shouldStop);
   for (const sitemapUrl of sitemapUrls) {
     const sitemapKey = canonicalUrl(sitemapUrl);
     if (!queued.has(sitemapKey)) {
@@ -54,6 +54,7 @@ export async function crawlWebsite(root: URL, onProgress?: CrawlProgress, option
 
     const response = await safeFetch(item.url);
     if (!response) continue;
+    if (shouldStop()) break;
     const contentType = response.headers.get("content-type") ?? "";
 
     if (contentType.includes("application/pdf") || item.url.pathname.toLowerCase().endsWith(".pdf")) {
@@ -69,6 +70,7 @@ export async function crawlWebsite(root: URL, onProgress?: CrawlProgress, option
 
     if (!contentType.includes("text/html")) continue;
     const html = await response.text();
+    if (shouldStop()) break;
     const { source, links } = extractHtml(item.url, html, root);
     if (source.text.length > 250) {
       sources.push(source);
@@ -140,12 +142,13 @@ function extractHtml(url: URL, html: string, root: URL) {
   };
 }
 
-async function discoverSitemapUrls(root: URL, allowedByRobots: (url: URL) => boolean) {
+async function discoverSitemapUrls(root: URL, allowedByRobots: (url: URL) => boolean, shouldStop: () => boolean) {
   const sitemapQueue = await discoverSitemapLocations(root);
   const seenSitemaps = new Set<string>();
   const found = new Map<string, URL>();
 
   while (sitemapQueue.length && found.size < MAX_SITEMAP_URLS) {
+    if (shouldStop()) break;
     const sitemapUrl = sitemapQueue.shift();
     if (!sitemapUrl) continue;
     const sitemapKey = canonicalUrl(sitemapUrl);
@@ -155,6 +158,7 @@ async function discoverSitemapUrls(root: URL, allowedByRobots: (url: URL) => boo
     const response = await safeFetch(sitemapUrl);
     if (!response) continue;
     const text = await response.text();
+    if (shouldStop()) break;
     const $ = cheerio.load(text, { xmlMode: true });
 
     $("sitemap loc").each((_, element) => {

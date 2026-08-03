@@ -4,6 +4,8 @@ import { toPublicDemo } from "@/lib/public-demo";
 
 const ipCreates = new Map<string, number[]>();
 
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const ip = request.ip ?? request.headers.get("x-forwarded-for") ?? "local";

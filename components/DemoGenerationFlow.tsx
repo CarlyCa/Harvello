@@ -37,6 +37,7 @@ export function DemoGenerationFlow() {
   const [currentStep, setCurrentStep] = useState(0);
   const [error, setError] = useState("");
   const [isComplete, setIsComplete] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   useEffect(() => {
     if (!targetUrl) {
@@ -45,22 +46,30 @@ export function DemoGenerationFlow() {
     }
 
     let cancelled = false;
+    setElapsedSeconds(0);
     const timer = window.setInterval(() => {
       setCurrentStep((step) => Math.min(step + 1, steps.length - 2));
     }, 1800);
+    const elapsedTimer = window.setInterval(() => {
+      setElapsedSeconds((seconds) => seconds + 1);
+    }, 1000);
 
     async function createDemo() {
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 65_000);
       try {
         const response = await fetch("/api/demo", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ url: targetUrl })
+          body: JSON.stringify({ url: targetUrl }),
+          signal: controller.signal
         });
         const data = await readJson(response);
         if (!response.ok) throw new Error(data.error ?? "Unable to create demo.");
         if (cancelled) return;
 
         window.clearInterval(timer);
+        window.clearInterval(elapsedTimer);
         setCurrentStep(steps.length - 1);
         setIsComplete(true);
         window.setTimeout(() => {
@@ -68,9 +77,18 @@ export function DemoGenerationFlow() {
         }, 900);
       } catch (caught) {
         window.clearInterval(timer);
+        window.clearInterval(elapsedTimer);
         if (!cancelled) {
-          setError(caught instanceof Error ? caught.message : "Unable to create demo.");
+          setError(
+            caught instanceof DOMException && caught.name === "AbortError"
+              ? "This website took too long to process. Try again, or use a smaller public website URL."
+              : caught instanceof Error
+                ? caught.message
+                : "Unable to create demo."
+          );
         }
+      } finally {
+        window.clearTimeout(timeout);
       }
     }
 
@@ -79,6 +97,7 @@ export function DemoGenerationFlow() {
     return () => {
       cancelled = true;
       window.clearInterval(timer);
+      window.clearInterval(elapsedTimer);
     };
   }, [router, targetUrl]);
 
@@ -95,7 +114,7 @@ export function DemoGenerationFlow() {
           Building your Harvello demo.
         </h1>
         <p className="mt-5 max-w-xl text-lg leading-8 text-[#31584f]">
-          Harvello is reading the public website, organizing useful visitor information, and preparing a working assistant experience.
+          Harvello is reading the public website, organizing useful visitor information, and preparing a working assistant experience. This may take a few minutes for larger sites.
         </p>
         <div className="mt-8 rounded-lg border border-[#dce4dd] bg-white p-5 shadow-sm">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#6a7b75]">Website</p>
@@ -106,7 +125,9 @@ export function DemoGenerationFlow() {
       <div className="rounded-[28px] border border-[#dce4dd] bg-white p-6 shadow-soft">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-bold text-[#0b8f4d]">{isComplete ? "Ready" : "Working"}</p>
+            <p className="text-sm font-bold text-[#0b8f4d]">
+              {isComplete ? "Ready" : `Still working - ${elapsedSeconds}s elapsed`}
+            </p>
             <h2 className="mt-1 text-2xl font-black text-[#073f32]">{steps[currentStep].title}</h2>
           </div>
           <span className="text-2xl font-black text-[#073f32]">{progress}%</span>
