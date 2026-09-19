@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
 
 const ADMIN_REALM = "Harvello Admin";
 
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (pathname.startsWith("/civic-circle")) {
-    return updateCivicSession(request);
-  }
   const protectsAdminPage = pathname.startsWith("/admin") || pathname.startsWith("/dashboard");
   const protectsDemoMutation = pathname.startsWith("/api/demo/") && request.method === "PATCH";
 
@@ -29,40 +25,6 @@ export async function middleware(request: NextRequest) {
   });
 }
 
-async function updateCivicSession(request: NextRequest) {
-  let response = NextResponse.next({ request });
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const publicPath = request.nextUrl.pathname === "/civic-circle/login" || request.nextUrl.pathname === "/civic-circle/reset-password";
-
-  if (!url || !key) return response;
-  const supabase = createServerClient(url, key, {
-    cookies: {
-      getAll: () => request.cookies.getAll(),
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        response = NextResponse.next({ request });
-        cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
-      }
-    }
-  });
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user && !publicPath) {
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = "/civic-circle/login";
-    loginUrl.search = "";
-    return NextResponse.redirect(loginUrl);
-  }
-  if (user && request.nextUrl.pathname === "/civic-circle/login") {
-    const dashboardUrl = request.nextUrl.clone();
-    dashboardUrl.pathname = "/civic-circle/dashboard";
-    dashboardUrl.search = "";
-    return NextResponse.redirect(dashboardUrl);
-  }
-  return response;
-}
-
 function hasValidAdminAuth(authorization: string | null, password: string) {
   if (!authorization?.startsWith("Basic ")) return false;
 
@@ -80,5 +42,5 @@ function hasValidAdminAuth(authorization: string | null, password: string) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/dashboard/:path*", "/api/demo/:path*", "/civic-circle/:path*"]
+  matcher: ["/admin/:path*", "/dashboard/:path*", "/api/demo/:path*"]
 };
